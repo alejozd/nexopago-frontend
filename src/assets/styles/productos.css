@@ -7,14 +7,12 @@
   flex-wrap: wrap;
 }
 
-.productos-total {
-  font-size: 0.88rem;
-  color: var(--np-text-muted);
+.productos-total-kpi {
+  max-width: 280px;
 }
 
-.productos-total strong {
-  color: var(--np-text-title);
-  font-size: 1.1rem;
+.productos-total-kpi .kpi-card-wrapper {
+  margin: 0;
 }
 
 .productos-search {
