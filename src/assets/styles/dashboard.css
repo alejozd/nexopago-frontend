@@ -82,6 +82,29 @@
   margin-top: 0.15rem;
 }
 
+.kpi-card-wrapper--compact .kpi-card {
+  gap: 0.75rem;
+}
+
+.kpi-card-wrapper--compact .kpi-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 1.05rem;
+}
+
+.kpi-card-wrapper--compact .kpi-value {
+  font-size: 1.5rem;
+}
+
+.kpi-card-wrapper--compact .kpi-label {
+  font-size: 0.75rem;
+  margin-top: 0.1rem;
+}
+
+.kpi-card-wrapper--compact .p-card-body {
+  padding: 0.75rem 1rem;
+}
+
 .dashboard-charts {
   display: grid;
   grid-template-columns: 1fr 1fr;

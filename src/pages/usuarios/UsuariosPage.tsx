@@ -2,10 +2,15 @@ import { useState } from 'react';
 import { DataTable, type DataTablePageEvent, type DataTableSortEvent } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
+import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
+import { confirmDialog } from 'primereact/confirmdialog';
 import { useUsuariosQuery } from '../../hooks/usuarios/useUsuariosQuery';
 import { useUsuariosResumenQuery } from '../../hooks/usuarios/useUsuariosResumenQuery';
+import { useCambiarEstadoUsuario } from '../../hooks/usuarios/useCambiarEstadoUsuario';
 import { KpiCard } from '../../components/common/KpiCard';
+import { RowActions } from '../../components/common/RowActions';
+import { UsuarioFormDialog } from './UsuarioFormDialog';
 import { formatDate } from '../../utils/formatters';
 import type { UsuarioListItem } from '../../types/usuario.types';
 import type { PagedParams } from '../../types/common.types';
@@ -14,8 +19,33 @@ const DEFAULT_PARAMS: PagedParams = { page: 1, rows: 20 };
 
 export function UsuariosPage() {
   const [params, setParams] = useState<PagedParams>(DEFAULT_PARAMS);
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [editingUsuario, setEditingUsuario] = useState<UsuarioListItem | null>(null);
   const { data, isLoading } = useUsuariosQuery(params);
   const { data: resumen } = useUsuariosResumenQuery();
+  const cambiarEstadoMutation = useCambiarEstadoUsuario();
+
+  const openCreateDialog = () => {
+    setEditingUsuario(null);
+    setDialogVisible(true);
+  };
+
+  const openEditDialog = (usuario: UsuarioListItem) => {
+    setEditingUsuario(usuario);
+    setDialogVisible(true);
+  };
+
+  const confirmCambiarEstado = (usuario: UsuarioListItem) => {
+    const nuevoEstado = !usuario.activo;
+    confirmDialog({
+      header: nuevoEstado ? 'Activar usuario' : 'Inactivar usuario',
+      message: `¿${nuevoEstado ? 'Activar' : 'Inactivar'} a "${usuario.nombreUsuario}"?`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: nuevoEstado ? 'Activar' : 'Inactivar',
+      rejectLabel: 'Cancelar',
+      accept: () => cambiarEstadoMutation.mutate({ id: usuario.id, activo: nuevoEstado }),
+    });
+  };
 
   const onPage = (event: DataTablePageEvent) => {
     setParams((prev) => ({ ...prev, page: (event.page ?? 0) + 1, rows: event.rows }));
@@ -32,12 +62,34 @@ export function UsuariosPage() {
   return (
     <div>
       <div className="kpi-row">
-        <KpiCard icon="pi pi-users" label="Total Usuarios" value={String(resumen?.total ?? 0)} accent="primary" />
-        <KpiCard icon="pi pi-check-circle" label="Activos" value={String(resumen?.activos ?? 0)} accent="success" />
-        <KpiCard icon="pi pi-shield" label="Roles" value={String(resumen?.totalRoles ?? 0)} accent="warning" />
+        <KpiCard
+          icon="pi pi-users"
+          label="Total Usuarios"
+          value={String(resumen?.total ?? 0)}
+          accent="primary"
+          size="compact"
+        />
+        <KpiCard
+          icon="pi pi-check-circle"
+          label="Activos"
+          value={String(resumen?.activos ?? 0)}
+          accent="success"
+          size="compact"
+        />
+        <KpiCard
+          icon="pi pi-shield"
+          label="Roles"
+          value={String(resumen?.totalRoles ?? 0)}
+          accent="warning"
+          size="compact"
+        />
       </div>
 
       <Card title="Usuarios">
+        <div className="page-header-actions">
+          <Button label="Nuevo Usuario" icon="pi pi-plus" onClick={openCreateDialog} />
+        </div>
+
         <DataTable
           value={data?.data ?? []}
           loading={isLoading}
@@ -77,8 +129,32 @@ export function UsuariosPage() {
               row.fechaUltimoAcceso ? formatDate(row.fechaUltimoAcceso) : 'Nunca'
             }
           />
+          <Column
+            header="Acciones"
+            body={(row: UsuarioListItem) => (
+              <RowActions
+                actions={[
+                  {
+                    icon: 'pi pi-pencil',
+                    tooltip: 'Editar',
+                    severity: 'info',
+                    onClick: () => openEditDialog(row),
+                  },
+                  {
+                    icon: 'pi pi-sync',
+                    tooltip: row.activo ? 'Inactivar' : 'Activar',
+                    severity: row.activo ? 'warning' : 'success',
+                    loading: cambiarEstadoMutation.isPending && cambiarEstadoMutation.variables?.id === row.id,
+                    onClick: () => confirmCambiarEstado(row),
+                  },
+                ]}
+              />
+            )}
+          />
         </DataTable>
       </Card>
+
+      <UsuarioFormDialog visible={dialogVisible} usuario={editingUsuario} onHide={() => setDialogVisible(false)} />
     </div>
   );
 }
