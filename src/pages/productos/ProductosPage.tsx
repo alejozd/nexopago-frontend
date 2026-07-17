@@ -9,6 +9,7 @@ import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
 import { useProductosQuery } from '../../hooks/productos/useProductosQuery';
 import { useSincronizarProductos } from '../../hooks/productos/useSincronizarProductos';
+import { KpiCard } from '../../components/common/KpiCard';
 import { formatCurrency } from '../../utils/formatters';
 import type { Producto } from '../../types/producto.types';
 import type { PagedParams } from '../../types/common.types';
@@ -46,9 +47,9 @@ export function ProductosPage() {
   return (
     <Card title="Productos">
       <div className="productos-toolbar">
-        <span className="productos-total">
-          Total: <strong>{data?.totalRecords ?? 0}</strong> productos
-        </span>
+        <div className="productos-total-kpi">
+          <KpiCard icon="pi pi-box" label="Total de productos" value={String(data?.totalRecords ?? 0)} accent="primary" />
+        </div>
 
         <div className="productos-toolbar" style={{ marginBottom: 0 }}>
           <IconField iconPosition="left" className="productos-search">
