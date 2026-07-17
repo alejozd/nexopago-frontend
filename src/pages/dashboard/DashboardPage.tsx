@@ -89,7 +89,7 @@ export function DashboardPage() {
         <p>{dayjs().locale('es').format('dddd, D [de] MMMM [de] YYYY')}</p>
       </div>
 
-      <div className="dashboard-kpis">
+      <div className="kpi-row">
         <KpiCard
           icon="pi pi-shopping-cart"
           label="Órdenes Pendientes"
