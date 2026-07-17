@@ -17,7 +17,7 @@ const proveedorSchema = z.object({
   codigoInterno: z.string(),
   direccion: z.string(),
   telefono: z.string(),
-  correoElectronico: z.string(),
+  correoElectronico: z.union([z.literal(''), z.string().email('Correo electrónico inválido')]),
 });
 
 type ProveedorFormValues = z.infer<typeof proveedorSchema>;
@@ -125,6 +125,7 @@ export function ProveedorFormDialog({ visible, proveedor, onHide }: ProveedorFor
           <div className="field">
             <label htmlFor="correoElectronico">Correo</label>
             <InputText id="correoElectronico" type="email" {...register('correoElectronico')} />
+            {errors.correoElectronico && <small className="p-error">{errors.correoElectronico.message}</small>}
           </div>
         </div>
         <div className="dialog-footer">
