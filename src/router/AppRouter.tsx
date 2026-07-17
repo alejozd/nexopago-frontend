@@ -8,6 +8,7 @@ import { OrdenesListPage } from '../pages/ordenes/OrdenesListPage';
 import { OrdenFormPage } from '../pages/ordenes/OrdenFormPage';
 import { OrdenDetallePage } from '../pages/ordenes/OrdenDetallePage';
 import { RecibosListPage } from '../pages/recibos/RecibosListPage';
+import { EntradasListPage } from '../pages/entradas/EntradasListPage';
 import { UsuariosPage } from '../pages/usuarios/UsuariosPage';
 import { PermisosPage } from '../pages/permisos/PermisosPage';
 import { ReportesCarteraPage } from '../pages/reportes/ReportesCarteraPage';
@@ -28,6 +29,7 @@ export function AppRouter() {
           <Route path="/ordenes/:id/editar" element={<OrdenFormPage />} />
           <Route path="/ordenes/:id" element={<OrdenDetallePage />} />
           <Route path="/recibos" element={<RecibosListPage />} />
+          <Route path="/entradas" element={<EntradasListPage />} />
           <Route path="/usuarios" element={<UsuariosPage />} />
           <Route path="/permisos" element={<PermisosPage />} />
           <Route path="/reportes/cartera" element={<ReportesCarteraPage />} />

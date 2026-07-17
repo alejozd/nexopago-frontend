@@ -14,6 +14,10 @@ export function formatDate(value: string | Date): string {
   return dayjs(value).format('DD/MM/YYYY');
 }
 
+export function formatDateTime(value: string | Date): string {
+  return dayjs(value).format('DD/MM/YYYY HH:mm');
+}
+
 export function formatMonthPeriod(periodo: string): string {
   return dayjs(`${periodo}-01`).format('MMM YYYY');
 }

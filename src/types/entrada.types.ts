@@ -8,3 +8,15 @@ export interface EntradaCreateDTO {
   completa: boolean;
   observaciones: string | null;
 }
+
+// Fila del listado de auditoria GET /api/entradas.
+export interface EntradaMercancia {
+  id: number;
+  numeroEntradaHelisa: string;
+  fechaEntrada: string;
+  numeroOrden: string;
+  proveedorNombre: string;
+  usuarioCreoNombre: string;
+  fechaCreacion: string;
+  observaciones: string | null;
+}
