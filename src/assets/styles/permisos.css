@@ -8,6 +8,12 @@
   max-width: 22rem;
 }
 
+.permisos-matriz-info {
+  display: flex;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
 .permisos-matriz-toolbar {
   display: flex;
   justify-content: flex-end;
