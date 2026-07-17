@@ -1,0 +1,23 @@
+.productos-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.productos-total {
+  font-size: 0.88rem;
+  color: var(--np-text-muted);
+}
+
+.productos-total strong {
+  color: var(--np-text-title);
+  font-size: 1.1rem;
+}
+
+.productos-search {
+  width: 18rem;
+  max-width: 100%;
+}

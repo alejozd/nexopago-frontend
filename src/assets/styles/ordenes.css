@@ -1,0 +1,118 @@
+.orden-detalle-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-lg);
+}
+
+.orden-detalle-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .orden-detalle-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.orden-detalle-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-xl);
+}
+
+.orden-header-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--np-space-md);
+}
+
+.orden-header-field label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--np-text-muted);
+  margin-bottom: 0.3rem;
+}
+
+.orden-header-field span {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--np-text-title);
+}
+
+.orden-header-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--np-border);
+}
+
+.orden-timeline-horizontal-wrap {
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.orden-timeline-content {
+  width: 11rem;
+}
+
+.orden-progreso-item {
+  margin-bottom: 1.5rem;
+}
+
+.orden-progreso-item:last-child {
+  margin-bottom: 0;
+}
+
+.orden-progreso-item .progreso-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--np-text-title);
+}
+
+.orden-timeline-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
+}
+
+.orden-timeline-status {
+  font-weight: 600;
+  color: var(--np-text-title);
+}
+
+.orden-timeline-date {
+  font-size: 0.78rem;
+  color: var(--np-text-muted);
+}
+
+.orden-timeline-description {
+  font-size: 0.88rem;
+  color: var(--np-text-body);
+  margin-top: 0.2rem;
+}
+
+.orden-detalle-total-cell {
+  font-weight: 700;
+  color: var(--np-text-title);
+}
+
+.p-timeline-event-content,
+.p-timeline-event-opposite {
+  padding-bottom: 1.5rem;
+}

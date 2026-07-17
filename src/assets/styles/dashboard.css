@@ -1,0 +1,113 @@
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-xl);
+}
+
+.dashboard-greeting h2 {
+  margin: 0 0 0.2rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--np-text-title);
+  text-transform: capitalize;
+}
+
+.dashboard-greeting p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--np-text-muted);
+  text-transform: capitalize;
+}
+
+.dashboard-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--np-space-md);
+}
+
+.p-card.kpi-accent-primary {
+  border-left: 4px solid var(--np-primary);
+}
+
+.p-card.kpi-accent-warning {
+  border-left: 4px solid var(--np-warning);
+}
+
+.p-card.kpi-accent-danger {
+  border-left: 4px solid var(--np-danger);
+}
+
+.p-card.kpi-accent-success {
+  border-left: 4px solid var(--np-success);
+}
+
+.kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.kpi-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--np-radius-control);
+  font-size: 1.35rem;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+.kpi-icon-primary {
+  background: linear-gradient(135deg, var(--np-primary), var(--np-primary-hover));
+}
+
+.kpi-icon-warning {
+  background: linear-gradient(135deg, var(--np-warning), #fbbf24);
+}
+
+.kpi-icon-danger {
+  background: linear-gradient(135deg, var(--np-danger), #f87171);
+}
+
+.kpi-icon-success {
+  background: linear-gradient(135deg, var(--np-success), #34d399);
+}
+
+.kpi-value {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--np-text-title);
+  line-height: 1.2;
+}
+
+.kpi-label {
+  font-size: 0.82rem;
+  color: var(--np-text-muted);
+  margin-top: 0.15rem;
+}
+
+.dashboard-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--np-space-md);
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .dashboard-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dashboard-chart-wrap {
+  position: relative;
+  height: 280px;
+}
+
+.dashboard-chart-wrap-pie {
+  height: 280px;
+  max-width: 280px;
+  margin: 0 auto;
+}

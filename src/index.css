@@ -1,0 +1,57 @@
+@import './styles/design-system.css';
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100vh;
+}
+
+body {
+  font-family: var(--np-font);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--np-text-body);
+  background: var(--np-content-bg);
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--np-text-title);
+}
+
+:focus-visible {
+  outline: 2px solid var(--np-primary);
+  outline-offset: 2px;
+}
+
+@keyframes np-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.np-fade-in-up {
+  animation: np-fade-in-up 0.35s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,0 +1,57 @@
+.recibo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.recibo-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.recibo-form .field label {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--np-text-body);
+}
+
+.recibo-form .p-dropdown,
+.recibo-form .p-calendar,
+.recibo-form .p-inputnumber {
+  width: 100%;
+}
+
+.recibo-financiero {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  background: var(--np-content-bg);
+  border-radius: var(--np-radius-control);
+  padding: 1rem;
+}
+
+.recibo-financiero-item label {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--np-text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.recibo-financiero-item span {
+  font-weight: 600;
+  color: var(--np-text-title);
+}
+
+.recibo-financiero-item.saldo-despues span {
+  color: var(--np-primary);
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}

@@ -1,0 +1,20 @@
+.permisos-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-lg);
+}
+
+.permisos-selector {
+  max-width: 22rem;
+}
+
+.permisos-matriz-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.permisos-matriz-check {
+  display: flex;
+  justify-content: center;
+}

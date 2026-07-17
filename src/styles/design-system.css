@@ -1,0 +1,67 @@
+/* NexoPago — Sistema de Diseño (fuente única de tokens). */
+:root {
+  color-scheme: light;
+
+  /* Color */
+  --np-primary: #2563eb;
+  --np-primary-hover: #1d4ed8;
+  --np-primary-light: #dbeafe;
+  --np-primary-ring: rgba(37, 99, 235, 0.35);
+  --np-secondary: #64748b;
+  --np-content-bg: #f8fafc;
+  --np-surface-card: #ffffff;
+  --np-sidebar-bg: #1e293b;
+  --np-sidebar-text: #cbd5e1;
+
+  --np-text-title: #1e293b; /* slate-800 */
+  --np-text-body: #475569; /* slate-600 */
+  --np-text-muted: #94a3b8; /* slate-400 */
+  --np-border: #e2e8f0;
+
+  --np-success: #10b981;
+  --np-success-bg: #d1fae5;
+  --np-success-text: #065f46;
+  --np-warning: #f59e0b;
+  --np-warning-bg: #fef3c7;
+  --np-warning-text: #92400e;
+  --np-danger: #ef4444;
+  --np-danger-bg: #fee2e2;
+  --np-danger-text: #991b1b;
+  --np-info: #3b82f6;
+  --np-info-bg: #dbeafe;
+  --np-info-text: #1e40af;
+
+  /* Radios */
+  --np-radius-card: 12px;
+  --np-radius-control: 8px;
+  --np-radius-pill: 9999px;
+
+  /* Sombras */
+  --np-shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --np-shadow-card-hover: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+  --np-shadow-topbar: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --np-shadow-sidebar: 2px 0 8px rgba(0, 0, 0, 0.08);
+
+  /* Espaciado */
+  --np-space-xs: 0.25rem;
+  --np-space-sm: 0.5rem;
+  --np-space-md: 1rem;
+  --np-space-lg: 1.5rem;
+  --np-space-xl: 2rem;
+  --np-space-2xl: 3rem;
+
+  --np-font: 'Inter var', system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  /* Overrides de las variables nativas de PrimeReact (tema lara-light-blue):
+     esto propaga el sistema de diseño a Button/InputText/Tag/DataTable/Card/
+     etc. sin tocar cada componente uno por uno. */
+  --primary-color: var(--np-primary);
+  --primary-color-text: #ffffff;
+  --surface-ground: var(--np-content-bg);
+  --surface-card: var(--np-surface-card);
+  --border-radius: var(--np-radius-control);
+  --focus-ring: 0 0 0 0.2rem var(--np-primary-ring);
+  --text-color: var(--np-text-body);
+  --text-color-secondary: var(--np-text-muted);
+  --font-family: var(--np-font);
+}

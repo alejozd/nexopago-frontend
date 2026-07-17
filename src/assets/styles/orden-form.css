@@ -1,0 +1,50 @@
+.orden-form-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-lg);
+}
+
+.orden-form-header-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--np-space-md);
+}
+
+.orden-form-header-grid .field,
+.orden-form-observaciones .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.orden-form-header-grid label,
+.orden-form-observaciones label {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--np-text-body);
+}
+
+.orden-form-observaciones {
+  margin-top: var(--np-space-md);
+}
+
+.orden-form-lineas-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.orden-form-total {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding-top: 0.75rem;
+  font-weight: 700;
+  color: var(--np-text-title);
+}
+
+.orden-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
