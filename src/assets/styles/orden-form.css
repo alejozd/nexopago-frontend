@@ -24,6 +24,13 @@
   color: var(--np-text-body);
 }
 
+.orden-form-header-grid .p-dropdown,
+.orden-form-header-grid .p-calendar,
+.orden-form-header-grid .p-inputtext,
+.orden-form-header-grid .p-inputnumber {
+  width: 100%;
+}
+
 .orden-form-observaciones {
   margin-top: var(--np-space-md);
 }

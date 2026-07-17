@@ -10,6 +10,7 @@ export function useCreateEntrada() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['ordenes', 'list'] });
       queryClient.invalidateQueries({ queryKey: ['ordenes', 'detalle', variables.ordenId] });
+      queryClient.invalidateQueries({ queryKey: ['ordenes', 'resumen'] });
       queryClient.invalidateQueries({ queryKey: ['entradas', 'list'] });
       showSuccessToast('Entrada de mercancía registrada correctamente');
     },
