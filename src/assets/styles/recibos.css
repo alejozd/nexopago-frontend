@@ -32,12 +32,27 @@
 }
 
 .recibo-financiero-item label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--np-text-muted);
   margin-bottom: 0.2rem;
+}
+
+.recibo-form-section {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--np-text-muted);
+}
+
+.recibo-form .p-divider {
+  margin: 0.25rem 0;
 }
 
 .recibo-financiero-item span {

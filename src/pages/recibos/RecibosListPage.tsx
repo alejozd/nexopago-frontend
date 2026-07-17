@@ -6,9 +6,11 @@ import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { useRecibosQuery } from '../../hooks/recibos/useRecibosQuery';
+import { useRecibosResumenQuery } from '../../hooks/recibos/useRecibosResumenQuery';
 import { useAnularRecibo } from '../../hooks/recibos/useAnularRecibo';
 import { StatusTag } from '../../components/common/StatusTag';
 import { RowActions } from '../../components/common/RowActions';
+import { KpiCard } from '../../components/common/KpiCard';
 import { ReciboFormDialog } from './ReciboFormDialog';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import type { ReciboCaja } from '../../types/recibo.types';
@@ -20,6 +22,7 @@ export function RecibosListPage() {
   const [params, setParams] = useState<PagedParams>(DEFAULT_PARAMS);
   const [dialogVisible, setDialogVisible] = useState(false);
   const { data, isLoading } = useRecibosQuery(params);
+  const { data: resumen } = useRecibosResumenQuery();
   const anularMutation = useAnularRecibo();
 
   const onPage = (event: DataTablePageEvent) => {
@@ -47,7 +50,15 @@ export function RecibosListPage() {
   };
 
   return (
-    <Card title="Recibos de Caja">
+    <div>
+      <div className="kpi-row">
+        <KpiCard icon="pi pi-receipt" label="Total Recibos" value={String(resumen?.total ?? 0)} accent="primary" />
+        <KpiCard icon="pi pi-check-circle" label="Activos" value={String(resumen?.activos ?? 0)} accent="success" />
+        <KpiCard icon="pi pi-ban" label="Anulados" value={String(resumen?.anulados ?? 0)} accent="danger" />
+        <KpiCard icon="pi pi-wallet" label="Monto Total" value={formatCurrency(resumen?.montoTotal ?? 0)} accent="warning" />
+      </div>
+
+      <Card title="Recibos de Caja">
       <div className="page-header-actions">
         <Button label="Nuevo Recibo" icon="pi pi-plus" onClick={() => setDialogVisible(true)} />
       </div>
@@ -105,6 +116,7 @@ export function RecibosListPage() {
       </DataTable>
 
       <ReciboFormDialog visible={dialogVisible} onHide={() => setDialogVisible(false)} />
-    </Card>
+      </Card>
+    </div>
   );
 }
