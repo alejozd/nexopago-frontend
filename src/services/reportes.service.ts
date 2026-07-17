@@ -1,6 +1,6 @@
 import { axiosClient } from '../api/axiosClient';
 import type { PagedParams, PagedResult } from '../types/common.types';
-import type { CarteraItem, CarteraProveedor } from '../types/reporte.types';
+import type { CarteraItem, CarteraProveedor, CarteraResumen } from '../types/reporte.types';
 
 export async function getCartera(params: PagedParams): Promise<PagedResult<CarteraItem>> {
   const response = await axiosClient.get<PagedResult<CarteraItem>>('/reportes/cartera', { params });
@@ -11,5 +11,10 @@ export async function getCarteraPorProveedor(params: PagedParams): Promise<Paged
   const response = await axiosClient.get<PagedResult<CarteraProveedor>>('/reportes/cartera/por-proveedor', {
     params,
   });
+  return response.data;
+}
+
+export async function getCarteraResumen(): Promise<CarteraResumen> {
+  const response = await axiosClient.get<CarteraResumen>('/reportes/cartera/resumen');
   return response.data;
 }

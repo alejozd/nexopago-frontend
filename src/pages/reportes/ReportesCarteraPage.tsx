@@ -4,13 +4,22 @@ import { TabView, TabPanel } from 'primereact/tabview';
 import { DataTable, type DataTablePageEvent, type DataTableSortEvent } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Tag } from 'primereact/tag';
+import { Button } from 'primereact/button';
 import { useCarteraQuery } from '../../hooks/reportes/useCarteraQuery';
 import { useCarteraPorProveedorQuery } from '../../hooks/reportes/useCarteraPorProveedorQuery';
+import { useCarteraResumenQuery } from '../../hooks/reportes/useCarteraResumenQuery';
+import { getCartera, getCarteraPorProveedor } from '../../services/reportes.service';
+import { KpiCard } from '../../components/common/KpiCard';
+import { exportToExcel } from '../../utils/exportExcel';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import type { CarteraItem, CarteraProveedor } from '../../types/reporte.types';
 import type { PagedParams } from '../../types/common.types';
 
 const DEFAULT_PARAMS: PagedParams = { page: 1, rows: 20 };
+// Las tablas son paginadas en servidor: para exportar el reporte completo
+// (no solo la pagina visible) se pide una sola vez con un limite alto sobre
+// el mismo endpoint paginado, sin tocar la paginacion de la tabla en pantalla.
+const EXPORT_ROWS = 5000;
 
 const RANGO_SEVERITY: Record<string, 'success' | 'warning' | 'danger'> = {
   '0-30': 'success',
@@ -22,9 +31,63 @@ const RANGO_SEVERITY: Record<string, 'success' | 'warning' | 'danger'> = {
 export function ReportesCarteraPage() {
   const [paramsGeneral, setParamsGeneral] = useState<PagedParams>(DEFAULT_PARAMS);
   const [paramsProveedor, setParamsProveedor] = useState<PagedParams>(DEFAULT_PARAMS);
+  const [isExportingGeneral, setIsExportingGeneral] = useState(false);
+  const [isExportingProveedor, setIsExportingProveedor] = useState(false);
 
   const { data: cartera, isLoading: isLoadingCartera } = useCarteraQuery(paramsGeneral);
   const { data: carteraProveedor, isLoading: isLoadingProveedor } = useCarteraPorProveedorQuery(paramsProveedor);
+  const { data: resumen } = useCarteraResumenQuery();
+
+  const handleExportGeneral = async () => {
+    setIsExportingGeneral(true);
+    try {
+      const resultado = await getCartera({
+        page: 1,
+        rows: EXPORT_ROWS,
+        sortField: paramsGeneral.sortField,
+        sortOrder: paramsGeneral.sortOrder,
+      });
+      exportToExcel(
+        resultado.data.map((item) => ({
+          Orden: item.numeroOrden,
+          Fecha: formatDate(item.fechaOrden),
+          Proveedor: item.proveedorNombre,
+          'Valor Total': item.valorTotal,
+          Pagado: item.montoPagado,
+          'Saldo Pendiente': item.saldoPendiente,
+          'Días Antigüedad': item.diasAntiguedad,
+          Rango: item.rangoAntiguedad,
+        })),
+        'cartera-general',
+        'Cartera',
+      );
+    } finally {
+      setIsExportingGeneral(false);
+    }
+  };
+
+  const handleExportProveedor = async () => {
+    setIsExportingProveedor(true);
+    try {
+      const resultado = await getCarteraPorProveedor({
+        page: 1,
+        rows: EXPORT_ROWS,
+        sortField: paramsProveedor.sortField,
+        sortOrder: paramsProveedor.sortOrder,
+      });
+      exportToExcel(
+        resultado.data.map((item) => ({
+          Proveedor: item.proveedorNombre,
+          'Órdenes con Saldo': item.cantidadOrdenes,
+          'Saldo Total': item.saldoPendienteTotal,
+        })),
+        'cartera-por-proveedor',
+        'Cartera por Proveedor',
+      );
+    } finally {
+      setIsExportingProveedor(false);
+    }
+  };
 
   const onPageGeneral = (event: DataTablePageEvent) => {
     setParamsGeneral((prev) => ({ ...prev, page: (event.page ?? 0) + 1, rows: event.rows }));
@@ -49,9 +112,46 @@ export function ReportesCarteraPage() {
   };
 
   return (
-    <Card title="Reportes de Cartera">
+    <div>
+      <div className="kpi-row">
+        <KpiCard
+          icon="pi pi-wallet"
+          label="Total Cartera Pendiente"
+          value={formatCurrency(resumen?.totalPendiente ?? 0)}
+          accent="primary"
+        />
+        <KpiCard
+          icon="pi pi-file"
+          label="Órdenes con Saldo"
+          value={String(resumen?.cantidadOrdenesConSaldo ?? 0)}
+          accent="warning"
+        />
+        <KpiCard
+          icon="pi pi-clock"
+          label="Orden Más Antigua"
+          value={resumen?.ordenMasAntiguaNumero ? `${resumen.ordenMasAntiguaNumero} (${resumen.ordenMasAntiguaDias}d)` : '—'}
+          accent="danger"
+        />
+        <KpiCard
+          icon="pi pi-building"
+          label="Proveedor con Mayor Deuda"
+          value={resumen?.proveedorMayorDeudaNombre ?? '—'}
+          accent="success"
+        />
+      </div>
+
+      <Card title="Reportes de Cartera">
       <TabView>
         <TabPanel header="General">
+          <div className="page-header-actions">
+            <Button
+              label="Exportar a Excel"
+              icon="pi pi-file-excel"
+              outlined
+              loading={isExportingGeneral}
+              onClick={handleExportGeneral}
+            />
+          </div>
           <DataTable
             value={cartera?.data ?? []}
             loading={isLoadingCartera}
@@ -103,6 +203,15 @@ export function ReportesCarteraPage() {
         </TabPanel>
 
         <TabPanel header="Por Proveedor">
+          <div className="page-header-actions">
+            <Button
+              label="Exportar a Excel"
+              icon="pi pi-file-excel"
+              outlined
+              loading={isExportingProveedor}
+              onClick={handleExportProveedor}
+            />
+          </div>
           <DataTable
             value={carteraProveedor?.data ?? []}
             loading={isLoadingProveedor}
@@ -130,6 +239,7 @@ export function ReportesCarteraPage() {
           </DataTable>
         </TabPanel>
       </TabView>
-    </Card>
+      </Card>
+    </div>
   );
 }
