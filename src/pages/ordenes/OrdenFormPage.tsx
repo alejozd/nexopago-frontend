@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,15 +15,19 @@ import { Column, type ColumnBodyOptions } from 'primereact/column';
 import { AutoComplete, type AutoCompleteCompleteEvent } from 'primereact/autocomplete';
 import { InputNumber } from 'primereact/inputnumber';
 import { ProgressSpinner } from 'primereact/progressspinner';
+import { confirmDialog } from 'primereact/confirmdialog';
 import { useProveedoresQuery } from '../../hooks/proveedores/useProveedoresQuery';
-import { useProductosQuery } from '../../hooks/productos/useProductosQuery';
 import { useCreateOrden } from '../../hooks/ordenes/useCreateOrden';
 import { useUpdateOrden } from '../../hooks/ordenes/useUpdateOrden';
 import { useOrdenDetalleQuery } from '../../hooks/ordenes/useOrdenDetalleQuery';
+import { getProductos } from '../../services/productos.service';
 import { formatCurrency } from '../../utils/formatters';
 import type { Producto } from '../../types/producto.types';
 import type { OrdenLineaCreateDTO } from '../../types/orden.types';
 import '../../assets/styles/orden-form.css';
+
+const PRODUCTO_SEARCH_MIN_CHARS = 2;
+const PRODUCTO_SEARCH_DEBOUNCE_MS = 300;
 
 const headerSchema = z.object({
   proveedorId: z.number({ error: 'El proveedor es obligatorio' }).min(1, 'El proveedor es obligatorio'),
@@ -68,7 +72,6 @@ export function OrdenFormPage() {
 
   const { data: orden, isLoading: isLoadingOrden } = useOrdenDetalleQuery(ordenId);
   const { data: proveedoresData } = useProveedoresQuery({ page: 1, rows: 100 });
-  const { data: productosData } = useProductosQuery({ page: 1, rows: 100 });
   const createMutation = useCreateOrden();
   const updateMutation = useUpdateOrden();
   const mutation = isEditMode ? updateMutation : createMutation;
@@ -76,6 +79,13 @@ export function OrdenFormPage() {
   const [lineas, setLineas] = useState<LineaForm[]>([crearLineaVacia()]);
   const [filteredProductos, setFilteredProductos] = useState<Producto[]>([]);
   const [lineasError, setLineasError] = useState<string | null>(null);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, []);
 
   const {
     control,
@@ -112,11 +122,23 @@ export function OrdenFormPage() {
   }, [isEditMode, orden, reset]);
 
   const proveedorOptions = proveedoresData?.data ?? [];
-  const productos = productosData?.data ?? [];
 
+  // El catálogo de Productos sincronizado con Helisa tiene ~47.000 registros:
+  // la búsqueda se hace en el servidor (paginada, ya soportada por
+  // GET /productos?search=), nunca se carga la lista completa al formulario.
   const searchProductos = (event: AutoCompleteCompleteEvent) => {
-    const query = event.query.toLowerCase();
-    setFilteredProductos(productos.filter((p) => p.descripcion.toLowerCase().includes(query)));
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+
+    const query = event.query.trim();
+    if (query.length < PRODUCTO_SEARCH_MIN_CHARS) {
+      setFilteredProductos([]);
+      return;
+    }
+
+    searchTimeoutRef.current = setTimeout(async () => {
+      const resultado = await getProductos({ page: 1, rows: 20, search: query });
+      setFilteredProductos(resultado.data);
+    }, PRODUCTO_SEARCH_DEBOUNCE_MS);
   };
 
   const updateLinea = (index: number, patch: Partial<LineaForm>) => {
@@ -155,6 +177,10 @@ export function OrdenFormPage() {
       setLineasError('Agrega al menos una línea con un producto seleccionado.');
       return;
     }
+    if (detalles.some((linea) => linea.cantidad <= 0)) {
+      setLineasError('Todas las líneas deben tener una cantidad mayor a cero.');
+      return;
+    }
     setLineasError(null);
 
     const dto = {
@@ -167,11 +193,22 @@ export function OrdenFormPage() {
       detalles,
     };
 
-    if (isEditMode && ordenId !== undefined) {
-      updateMutation.mutate({ id: ordenId, dto }, { onSuccess: () => navigate(`/ordenes/${ordenId}`) });
-    } else {
-      createMutation.mutate(dto, { onSuccess: ({ id: newId }) => navigate(`/ordenes/${newId}`) });
-    }
+    const proveedorNombre = proveedorOptions.find((p) => p.id === values.proveedorId)?.nombre ?? '';
+
+    confirmDialog({
+      header: isEditMode ? 'Confirmar cambios' : 'Confirmar nueva orden',
+      message: `¿${isEditMode ? 'Guardar los cambios de la orden' : 'Crear la orden'} para "${proveedorNombre}" con ${detalles.length} línea(s) por un total de ${formatCurrency(totalOrden)}?`,
+      icon: 'pi pi-question-circle',
+      acceptLabel: isEditMode ? 'Guardar' : 'Crear orden',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        if (isEditMode && ordenId !== undefined) {
+          updateMutation.mutate({ id: ordenId, dto }, { onSuccess: () => navigate(`/ordenes/${ordenId}`) });
+        } else {
+          createMutation.mutate(dto, { onSuccess: ({ id: newId }) => navigate(`/ordenes/${newId}`) });
+        }
+      },
+    });
   };
 
   return (
@@ -247,7 +284,7 @@ export function OrdenFormPage() {
                   suggestions={filteredProductos}
                   completeMethod={searchProductos}
                   field="descripcion"
-                  placeholder="Buscar producto..."
+                  placeholder="Escribe al menos 2 letras para buscar..."
                   onChange={(e) => {
                     const value = e.value as Producto | string;
                     if (typeof value !== 'string') {
