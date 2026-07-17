@@ -12,6 +12,7 @@ export function useCreateEntrada() {
       queryClient.invalidateQueries({ queryKey: ['ordenes', 'detalle', variables.ordenId] });
       queryClient.invalidateQueries({ queryKey: ['ordenes', 'resumen'] });
       queryClient.invalidateQueries({ queryKey: ['entradas', 'list'] });
+      queryClient.invalidateQueries({ queryKey: ['entradas', 'resumen'] });
       showSuccessToast('Entrada de mercancía registrada correctamente');
     },
   });
