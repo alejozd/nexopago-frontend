@@ -20,3 +20,9 @@ export interface EntradaMercancia {
   fechaCreacion: string;
   observaciones: string | null;
 }
+
+export interface EntradasResumen {
+  total: number;
+  ultimoMes: number;
+  ordenesAsociadas: number;
+}

@@ -3,6 +3,8 @@ import { DataTable, type DataTablePageEvent, type DataTableSortEvent } from 'pri
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
 import { useEntradasQuery } from '../../hooks/entradas/useEntradasQuery';
+import { useEntradasResumenQuery } from '../../hooks/entradas/useEntradasResumenQuery';
+import { KpiCard } from '../../components/common/KpiCard';
 import { formatDate, formatDateTime } from '../../utils/formatters';
 import type { EntradaMercancia } from '../../types/entrada.types';
 import type { PagedParams } from '../../types/common.types';
@@ -13,6 +15,7 @@ const DEFAULT_PARAMS: PagedParams = { page: 1, rows: 20, sortField: 'fechaEntrad
 export function EntradasListPage() {
   const [params, setParams] = useState<PagedParams>(DEFAULT_PARAMS);
   const { data, isLoading } = useEntradasQuery(params);
+  const { data: resumen } = useEntradasResumenQuery();
 
   const onPage = (event: DataTablePageEvent) => {
     setParams((prev) => ({ ...prev, page: (event.page ?? 0) + 1, rows: event.rows }));
@@ -27,7 +30,19 @@ export function EntradasListPage() {
   };
 
   return (
-    <Card title="Entradas de Mercancía">
+    <div>
+      <div className="kpi-row">
+        <KpiCard icon="pi pi-truck" label="Total Entradas" value={String(resumen?.total ?? 0)} accent="primary" />
+        <KpiCard icon="pi pi-calendar" label="Último Mes" value={String(resumen?.ultimoMes ?? 0)} accent="success" />
+        <KpiCard
+          icon="pi pi-file"
+          label="Órdenes Asociadas"
+          value={String(resumen?.ordenesAsociadas ?? 0)}
+          accent="warning"
+        />
+      </div>
+
+      <Card title="Entradas de Mercancía">
       <p className="entradas-subtitle">
         Historial de entradas registradas desde Órdenes de Compra, para auditoría. Para registrar una nueva entrada,
         ve al detalle de la orden correspondiente.
@@ -74,6 +89,7 @@ export function EntradasListPage() {
           body={(row: EntradaMercancia) => row.observaciones ?? '—'}
         />
       </DataTable>
-    </Card>
+      </Card>
+    </div>
   );
 }
