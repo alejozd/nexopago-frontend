@@ -19,12 +19,6 @@
   text-transform: capitalize;
 }
 
-.dashboard-kpis {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--np-space-md);
-}
-
 .p-card.kpi-accent-primary {
   border-left: 4px solid var(--np-primary);
 }
@@ -101,13 +95,22 @@
   }
 }
 
+.dashboard-charts .p-card,
+.dashboard-charts .p-card-body,
+.dashboard-charts .p-card-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+}
+
 .dashboard-chart-wrap {
   position: relative;
-  height: 280px;
+  flex: 1;
+  min-height: 280px;
 }
 
 .dashboard-chart-wrap-pie {
-  height: 280px;
-  max-width: 280px;
+  max-width: 320px;
   margin: 0 auto;
 }
