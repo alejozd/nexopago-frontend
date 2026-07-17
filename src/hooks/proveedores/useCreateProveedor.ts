@@ -9,6 +9,7 @@ export function useCreateProveedor() {
     mutationFn: (dto: ProveedorCreateDTO) => createProveedor(dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['proveedores', 'list'] });
+      queryClient.invalidateQueries({ queryKey: ['proveedores', 'resumen'] });
       showSuccessToast('Proveedor creado correctamente');
     },
   });

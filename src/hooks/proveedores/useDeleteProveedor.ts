@@ -8,6 +8,7 @@ export function useDeleteProveedor() {
     mutationFn: (id: number) => deleteProveedor(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['proveedores', 'list'] });
+      queryClient.invalidateQueries({ queryKey: ['proveedores', 'resumen'] });
       showSuccessToast('Proveedor eliminado correctamente');
     },
   });
