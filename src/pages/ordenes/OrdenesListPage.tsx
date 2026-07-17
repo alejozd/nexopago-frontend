@@ -6,9 +6,11 @@ import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { useOrdenesQuery } from '../../hooks/ordenes/useOrdenesQuery';
+import { useOrdenesResumenQuery } from '../../hooks/ordenes/useOrdenesResumenQuery';
 import { useAnularOrden } from '../../hooks/ordenes/useAnularOrden';
 import { StatusTag } from '../../components/common/StatusTag';
 import { RowActions } from '../../components/common/RowActions';
+import { KpiCard } from '../../components/common/KpiCard';
 import { EntradaFormDialog } from './EntradaFormDialog';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import type { OrdenListItem } from '../../types/orden.types';
@@ -22,6 +24,7 @@ export function OrdenesListPage() {
   const [params, setParams] = useState<PagedParams>(DEFAULT_PARAMS);
   const [entradaOrdenId, setEntradaOrdenId] = useState<number | null>(null);
   const { data, isLoading } = useOrdenesQuery(params);
+  const { data: resumen } = useOrdenesResumenQuery();
   const anularMutation = useAnularOrden();
 
   const onPage = (event: DataTablePageEvent) => {
@@ -49,7 +52,14 @@ export function OrdenesListPage() {
   };
 
   return (
-    <Card title="Órdenes de Compra">
+    <div>
+      <div className="kpi-row">
+        <KpiCard icon="pi pi-clock" label="Pendientes" value={String(resumen?.pendientes ?? 0)} accent="warning" />
+        <KpiCard icon="pi pi-check-circle" label="Recibidas" value={String(resumen?.recibidas ?? 0)} accent="success" />
+        <KpiCard icon="pi pi-ban" label="Anuladas" value={String(resumen?.anuladas ?? 0)} accent="danger" />
+      </div>
+
+      <Card title="Órdenes de Compra">
       <div className="page-header-actions">
         <Button label="Nueva Orden de Compra" icon="pi pi-plus" onClick={() => navigate('/ordenes/nueva')} />
       </div>
@@ -140,6 +150,7 @@ export function OrdenesListPage() {
         ordenId={entradaOrdenId}
         onHide={() => setEntradaOrdenId(null)}
       />
-    </Card>
+      </Card>
+    </div>
   );
 }

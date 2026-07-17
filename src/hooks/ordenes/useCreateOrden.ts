@@ -9,6 +9,7 @@ export function useCreateOrden() {
     mutationFn: (dto: OrdenCreateDTO) => createOrden(dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ordenes', 'list'] });
+      queryClient.invalidateQueries({ queryKey: ['ordenes', 'resumen'] });
       showSuccessToast('Orden creada correctamente');
     },
   });

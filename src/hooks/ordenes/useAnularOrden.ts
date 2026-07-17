@@ -9,6 +9,7 @@ export function useAnularOrden() {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['ordenes', 'list'] });
       queryClient.invalidateQueries({ queryKey: ['ordenes', 'detalle', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['ordenes', 'resumen'] });
       showSuccessToast('Orden anulada correctamente');
     },
   });

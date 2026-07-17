@@ -9,6 +9,12 @@ export interface OrdenListItem {
   valorTotal: number;
 }
 
+export interface OrdenesResumen {
+  pendientes: number;
+  recibidas: number;
+  anuladas: number;
+}
+
 export interface OrdenLinea {
   id: number;
   productoId: number;
