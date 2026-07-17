@@ -20,3 +20,9 @@ export interface ProveedorCreateDTO {
   telefono: string | null;
   correoElectronico: string | null;
 }
+
+export interface ProveedoresResumen {
+  total: number;
+  activos: number;
+  inactivos: number;
+}

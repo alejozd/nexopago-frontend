@@ -6,9 +6,11 @@ import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { useProveedoresQuery } from '../../hooks/proveedores/useProveedoresQuery';
+import { useProveedoresResumenQuery } from '../../hooks/proveedores/useProveedoresResumenQuery';
 import { useCambiarEstadoProveedor } from '../../hooks/proveedores/useCambiarEstadoProveedor';
 import { useDeleteProveedor } from '../../hooks/proveedores/useDeleteProveedor';
 import { RowActions } from '../../components/common/RowActions';
+import { KpiCard } from '../../components/common/KpiCard';
 import { ProveedorFormDialog } from './ProveedorFormDialog';
 import type { Proveedor } from '../../types/proveedor.types';
 import type { PagedParams } from '../../types/common.types';
@@ -21,6 +23,7 @@ export function ProveedoresPage() {
   const [editingProveedor, setEditingProveedor] = useState<Proveedor | null>(null);
 
   const { data, isLoading } = useProveedoresQuery(params);
+  const { data: resumen } = useProveedoresResumenQuery();
   const cambiarEstadoMutation = useCambiarEstadoProveedor();
   const deleteMutation = useDeleteProveedor();
 
@@ -59,7 +62,14 @@ export function ProveedoresPage() {
   };
 
   return (
-    <Card title="Proveedores">
+    <div>
+      <div className="kpi-row">
+        <KpiCard icon="pi pi-building" label="Total Proveedores" value={String(resumen?.total ?? 0)} accent="primary" />
+        <KpiCard icon="pi pi-check-circle" label="Activos" value={String(resumen?.activos ?? 0)} accent="success" />
+        <KpiCard icon="pi pi-ban" label="Inactivos" value={String(resumen?.inactivos ?? 0)} accent="danger" />
+      </div>
+
+      <Card title="Proveedores">
       <div className="page-header-actions">
         <Button label="Nuevo Proveedor" icon="pi pi-plus" onClick={openCreateDialog} />
       </div>
@@ -126,6 +136,7 @@ export function ProveedoresPage() {
         proveedor={editingProveedor}
         onHide={() => setDialogVisible(false)}
       />
-    </Card>
+      </Card>
+    </div>
   );
 }

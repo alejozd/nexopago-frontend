@@ -1,9 +1,14 @@
 import { axiosClient } from '../api/axiosClient';
 import type { PagedParams, PagedResult } from '../types/common.types';
-import type { Proveedor, ProveedorCreateDTO } from '../types/proveedor.types';
+import type { Proveedor, ProveedorCreateDTO, ProveedoresResumen } from '../types/proveedor.types';
 
 export async function getProveedores(params: PagedParams): Promise<PagedResult<Proveedor>> {
   const response = await axiosClient.get<PagedResult<Proveedor>>('/proveedores', { params });
+  return response.data;
+}
+
+export async function getProveedoresResumen(): Promise<ProveedoresResumen> {
+  const response = await axiosClient.get<ProveedoresResumen>('/proveedores/resumen');
   return response.data;
 }
 

@@ -8,6 +8,7 @@ export function useCambiarEstadoProveedor() {
     mutationFn: ({ id, activo }: { id: number; activo: boolean }) => cambiarEstadoProveedor(id, activo),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['proveedores', 'list'] });
+      queryClient.invalidateQueries({ queryKey: ['proveedores', 'resumen'] });
       showSuccessToast('Estado del proveedor actualizado');
     },
   });

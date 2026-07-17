@@ -22,6 +22,31 @@
   gap: 1rem;
 }
 
+.proveedor-form .field-row-identificacion {
+  grid-template-columns: 1.4fr 1fr 1fr;
+}
+
+.proveedor-form-section {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--np-text-muted);
+}
+
+.proveedor-form .p-divider {
+  margin: 0.25rem 0;
+}
+
+.proveedor-form .p-iconfield {
+  width: 100%;
+}
+
+.proveedor-form-input-icon {
+  width: 100%;
+}
+
 .dialog-footer {
   display: flex;
   justify-content: flex-end;

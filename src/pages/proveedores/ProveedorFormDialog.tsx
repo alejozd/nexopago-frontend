@@ -5,6 +5,9 @@ import { z } from 'zod';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
+import { Divider } from 'primereact/divider';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
 import { useCreateProveedor } from '../../hooks/proveedores/useCreateProveedor';
 import { useUpdateProveedor } from '../../hooks/proveedores/useUpdateProveedor';
 import type { Proveedor, ProveedorCreateDTO } from '../../types/proveedor.types';
@@ -89,21 +92,22 @@ export function ProveedorFormDialog({ visible, proveedor, onHide }: ProveedorFor
       header={isEditMode ? 'Editar Proveedor' : 'Nuevo Proveedor'}
       visible={visible}
       onHide={onHide}
-      style={{ width: '32rem' }}
+      style={{ width: '44rem' }}
       modal
     >
       <form onSubmit={handleSubmit(onSubmit)} className="proveedor-form" noValidate>
-        <div className="field">
-          <label htmlFor="nit">NIT</label>
-          <InputText id="nit" autoFocus {...register('nit')} />
-          {errors.nit && <small className="p-error">{errors.nit.message}</small>}
-        </div>
+        <h4 className="proveedor-form-section">Identificación</h4>
         <div className="field">
           <label htmlFor="nombre">Nombre</label>
-          <InputText id="nombre" {...register('nombre')} />
+          <InputText id="nombre" autoFocus {...register('nombre')} />
           {errors.nombre && <small className="p-error">{errors.nombre.message}</small>}
         </div>
-        <div className="field-row">
+        <div className="field-row field-row-identificacion">
+          <div className="field">
+            <label htmlFor="nit">NIT</label>
+            <InputText id="nit" {...register('nit')} />
+            {errors.nit && <small className="p-error">{errors.nit.message}</small>}
+          </div>
           <div className="field">
             <label htmlFor="codigoHelisa">Código Helisa</label>
             <InputText id="codigoHelisa" {...register('codigoHelisa')} />
@@ -113,18 +117,35 @@ export function ProveedorFormDialog({ visible, proveedor, onHide }: ProveedorFor
             <InputText id="codigoInterno" {...register('codigoInterno')} />
           </div>
         </div>
+
+        <Divider />
+        <h4 className="proveedor-form-section">Contacto</h4>
         <div className="field">
           <label htmlFor="direccion">Dirección</label>
-          <InputText id="direccion" {...register('direccion')} />
+          <IconField iconPosition="left">
+            <InputIcon className="pi pi-map-marker" />
+            <InputText id="direccion" className="proveedor-form-input-icon" {...register('direccion')} />
+          </IconField>
         </div>
         <div className="field-row">
           <div className="field">
             <label htmlFor="telefono">Teléfono</label>
-            <InputText id="telefono" {...register('telefono')} />
+            <IconField iconPosition="left">
+              <InputIcon className="pi pi-phone" />
+              <InputText id="telefono" className="proveedor-form-input-icon" {...register('telefono')} />
+            </IconField>
           </div>
           <div className="field">
             <label htmlFor="correoElectronico">Correo</label>
-            <InputText id="correoElectronico" type="email" {...register('correoElectronico')} />
+            <IconField iconPosition="left">
+              <InputIcon className="pi pi-envelope" />
+              <InputText
+                id="correoElectronico"
+                type="email"
+                className="proveedor-form-input-icon"
+                {...register('correoElectronico')}
+              />
+            </IconField>
             {errors.correoElectronico && <small className="p-error">{errors.correoElectronico.message}</small>}
           </div>
         </div>
