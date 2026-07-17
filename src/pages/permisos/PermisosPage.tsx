@@ -5,6 +5,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Checkbox } from 'primereact/checkbox';
 import { Button } from 'primereact/button';
+import { Message } from 'primereact/message';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { usePerfilesQuery } from '../../hooks/permisos/usePerfilesQuery';
 import { useMatrizQuery } from '../../hooks/permisos/useMatrizQuery';
@@ -93,6 +94,11 @@ export function PermisosPage() {
             <ProgressSpinner />
           ) : (
             <>
+              <Message
+                severity="info"
+                className="permisos-matriz-info"
+                text="Marca las casillas para otorgar ese permiso al perfil seleccionado, en cada módulo. Los cambios no se guardan hasta presionar «Guardar Cambios»."
+              />
               <div className="permisos-matriz-toolbar">
                 <Button
                   label="Guardar Cambios"
@@ -107,6 +113,7 @@ export function PermisosPage() {
                   <Column
                     key={accion}
                     header={accion}
+                    alignHeader="center"
                     body={(row: ModuloRow) => {
                       const item = lookup.get(`${row.modulo}|${accion}`);
                       if (!item) return null;
