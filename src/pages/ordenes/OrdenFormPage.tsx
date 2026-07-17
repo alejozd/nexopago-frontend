@@ -22,8 +22,10 @@ import { useUpdateOrden } from '../../hooks/ordenes/useUpdateOrden';
 import { useOrdenDetalleQuery } from '../../hooks/ordenes/useOrdenDetalleQuery';
 import { getProductos } from '../../services/productos.service';
 import { formatCurrency } from '../../utils/formatters';
+import { BuscarPedidoHelisaDialog } from './BuscarPedidoHelisaDialog';
 import type { Producto } from '../../types/producto.types';
 import type { OrdenLineaCreateDTO } from '../../types/orden.types';
+import type { HelisaPedidoDetalle, HelisaPedidoResumen } from '../../types/helisaPedido.types';
 import '../../assets/styles/orden-form.css';
 
 const PRODUCTO_SEARCH_MIN_CHARS = 2;
@@ -32,7 +34,7 @@ const PRODUCTO_SEARCH_DEBOUNCE_MS = 300;
 const headerSchema = z.object({
   proveedorId: z.number({ error: 'El proveedor es obligatorio' }).min(1, 'El proveedor es obligatorio'),
   fechaOrden: z.date({ error: 'La fecha es obligatoria' }),
-  numeroPedidoHelisa: z.string(),
+  numeroPedidoHelisa: z.string().min(1, 'Debe seleccionar un pedido Helisa'),
   observaciones: z.string(),
 });
 
@@ -46,6 +48,24 @@ interface LineaForm {
 
 function crearLineaVacia(): LineaForm {
   return { producto: null, cantidad: 1, precioUnitario: 0 };
+}
+
+// Producto "sentinela" (id: 0) para una linea del pedido Helisa cuya
+// referencia no tiene match en el catalogo local (aun no sincronizado): se
+// muestra igual, con la referencia visible, pero con id invalido a propósito
+// para que el usuario deba resolverla a mano antes de poder guardar (ver
+// validacion de "lineasSinResolver" en onSubmit).
+function productoNoSincronizado(referencia: string, descripcion: string): Producto {
+  return {
+    id: 0,
+    codigoHelisa: '',
+    subCodigoHelisa: '',
+    codigoInterno: referencia,
+    descripcion: `${descripcion} (no sincronizado, ref. ${referencia})`,
+    unidadMedida: null,
+    precioReferencia: null,
+    activo: true,
+  };
 }
 
 // La orden trae productoId/productoDescripcion, no el Producto completo:
@@ -79,6 +99,8 @@ export function OrdenFormPage() {
   const [lineas, setLineas] = useState<LineaForm[]>([crearLineaVacia()]);
   const [filteredProductos, setFilteredProductos] = useState<Producto[]>([]);
   const [lineasError, setLineasError] = useState<string | null>(null);
+  const [buscarPedidoVisible, setBuscarPedidoVisible] = useState(false);
+  const [isResolvingPedido, setIsResolvingPedido] = useState(false);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
@@ -92,6 +114,7 @@ export function OrdenFormPage() {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<HeaderFormValues>({
     resolver: zodResolver(headerSchema),
@@ -149,6 +172,37 @@ export function OrdenFormPage() {
 
   const removeLinea = (index: number) => setLineas((prev) => prev.filter((_, i) => i !== index));
 
+  // Al confirmar un pedido en el buscador: el N° Pedido queda fijo (solo
+  // lectura) y cada linea del pedido se resuelve contra el catalogo local
+  // por REFERENCIA (= CODIGO_INTERNO local, ver sync de Productos). Si una
+  // referencia no tiene match local (producto aun no sincronizado), la linea
+  // se agrega igual mostrando la referencia, sin bloquear el flujo -el
+  // usuario la completa o la elimina antes de guardar.
+  const handleConfirmPedidoHelisa = async (pedido: HelisaPedidoResumen, detalle: HelisaPedidoDetalle) => {
+    setValue('numeroPedidoHelisa', pedido.numeroPedido, { shouldValidate: true });
+    setIsResolvingPedido(true);
+    try {
+      const nuevasLineas = await Promise.all(
+        detalle.lineas.map(async (linea): Promise<LineaForm> => {
+          const resultado = await getProductos({ page: 1, rows: 1, search: linea.referencia });
+          const productoLocal = resultado.data[0];
+          if (productoLocal) {
+            return { producto: productoLocal, cantidad: 1, precioUnitario: productoLocal.precioReferencia ?? 0 };
+          }
+          return {
+            producto: productoNoSincronizado(linea.referencia, linea.descripcion),
+            cantidad: 1,
+            precioUnitario: 0,
+          };
+        }),
+      );
+      setLineas(nuevasLineas);
+      setLineasError(null);
+    } finally {
+      setIsResolvingPedido(false);
+    }
+  };
+
   const totalOrden = lineas.reduce((sum, linea) => sum + linea.cantidad * linea.precioUnitario, 0);
 
   if (isEditMode && isLoadingOrden) {
@@ -165,6 +219,13 @@ export function OrdenFormPage() {
   }
 
   const onSubmit = (values: HeaderFormValues) => {
+    if (lineas.some((linea) => linea.producto?.id === 0)) {
+      setLineasError(
+        'Hay líneas del pedido Helisa sin producto local encontrado: selecciona el producto correcto o elimina la línea.',
+      );
+      return;
+    }
+
     const detalles: OrdenLineaCreateDTO[] = lineas
       .filter((linea) => linea.producto !== null)
       .map((linea) => ({
@@ -261,8 +322,18 @@ export function OrdenFormPage() {
               {errors.fechaOrden && <small className="p-error">{errors.fechaOrden.message}</small>}
             </div>
             <div className="field">
-              <label htmlFor="numeroPedidoHelisa">N° Pedido Helisa (opcional)</label>
-              <InputText id="numeroPedidoHelisa" {...register('numeroPedidoHelisa')} />
+              <label htmlFor="numeroPedidoHelisa">N° Pedido Helisa</label>
+              <div className="orden-form-pedido-helisa">
+                <InputText id="numeroPedidoHelisa" readOnly {...register('numeroPedidoHelisa')} />
+                <Button
+                  type="button"
+                  icon="pi pi-search"
+                  label="Buscar Pedido"
+                  outlined
+                  onClick={() => setBuscarPedidoVisible(true)}
+                />
+              </div>
+              {errors.numeroPedidoHelisa && <small className="p-error">{errors.numeroPedidoHelisa.message}</small>}
             </div>
           </div>
 
@@ -275,7 +346,7 @@ export function OrdenFormPage() {
         </Card>
 
         <Card title="Líneas de Detalle" style={{ marginTop: '1.5rem' }}>
-          <DataTable value={lineas} dataKey={undefined} size="small">
+          <DataTable value={lineas} dataKey={undefined} size="small" loading={isResolvingPedido}>
             <Column
               header="Producto"
               body={(row: LineaForm, options: ColumnBodyOptions) => (
@@ -362,6 +433,12 @@ export function OrdenFormPage() {
           <Button type="submit" label="Guardar Orden" icon="pi pi-check" loading={mutation.isPending} />
         </div>
       </form>
+
+      <BuscarPedidoHelisaDialog
+        visible={buscarPedidoVisible}
+        onHide={() => setBuscarPedidoVisible(false)}
+        onConfirm={handleConfirmPedidoHelisa}
+      />
     </div>
   );
 }
