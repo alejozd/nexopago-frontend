@@ -55,3 +55,52 @@
   justify-content: flex-end;
   gap: 0.5rem;
 }
+
+.orden-form-pedido-helisa {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.orden-form-pedido-helisa .field {
+  flex: 1;
+}
+
+.buscar-pedido-subtitle {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: var(--np-text-muted);
+}
+
+.buscar-pedido-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--np-space-md);
+}
+
+@media (max-width: 700px) {
+  .buscar-pedido-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.buscar-pedido-section-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--np-text-muted);
+}
+
+.buscar-pedido-hint {
+  font-size: 0.85rem;
+  color: var(--np-text-muted);
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
