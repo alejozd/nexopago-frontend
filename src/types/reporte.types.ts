@@ -16,3 +16,12 @@ export interface CarteraProveedor {
   cantidadOrdenes: number;
   saldoPendienteTotal: number;
 }
+
+export interface CarteraResumen {
+  totalPendiente: number;
+  cantidadOrdenesConSaldo: number;
+  ordenMasAntiguaNumero: string | null;
+  ordenMasAntiguaDias: number | null;
+  proveedorMayorDeudaNombre: string | null;
+  proveedorMayorDeudaMonto: number | null;
+}
