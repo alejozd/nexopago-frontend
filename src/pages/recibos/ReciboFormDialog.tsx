@@ -8,6 +8,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { Calendar } from 'primereact/calendar';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { Divider } from 'primereact/divider';
 import { Button } from 'primereact/button';
 import { useOrdenesQuery } from '../../hooks/ordenes/useOrdenesQuery';
 import { useOrdenDetalleQuery } from '../../hooks/ordenes/useOrdenDetalleQuery';
@@ -74,8 +75,9 @@ export function ReciboFormDialog({ visible, onHide }: ReciboFormDialogProps) {
   return (
     <Dialog header="Nuevo Recibo de Caja" visible={visible} onHide={onHide} style={{ width: '32rem' }} modal>
       <form onSubmit={handleSubmit(onSubmit)} className="recibo-form" noValidate>
+        <h4 className="recibo-form-section">Orden de Compra</h4>
         <div className="field">
-          <label htmlFor="ordenId">Orden de Compra</label>
+          <label htmlFor="ordenId">Orden</label>
           <Controller
             name="ordenId"
             control={control}
@@ -102,23 +104,26 @@ export function ReciboFormDialog({ visible, onHide }: ReciboFormDialogProps) {
         {ordenDetalle && (
           <div className="recibo-financiero">
             <div className="recibo-financiero-item">
-              <label>Valor Total</label>
+              <label><i className="pi pi-tag" /> Valor Total</label>
               <span>{formatCurrency(ordenDetalle.valorTotal)}</span>
             </div>
             <div className="recibo-financiero-item">
-              <label>Pagado</label>
+              <label><i className="pi pi-check-circle" /> Pagado</label>
               <span>{formatCurrency(ordenDetalle.montoPagado)}</span>
             </div>
             <div className="recibo-financiero-item">
-              <label>Saldo Antes</label>
+              <label><i className="pi pi-clock" /> Saldo Antes</label>
               <span>{formatCurrency(saldoAntes)}</span>
             </div>
             <div className="recibo-financiero-item saldo-despues">
-              <label>Saldo Después</label>
+              <label><i className="pi pi-wallet" /> Saldo Después</label>
               <span>{formatCurrency(saldoDespues)}</span>
             </div>
           </div>
         )}
+
+        <Divider />
+        <h4 className="recibo-form-section">Detalle del Pago</h4>
 
         <div className="field">
           <label htmlFor="fechaRecibo">Fecha</label>

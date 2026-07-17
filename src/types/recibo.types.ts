@@ -17,3 +17,10 @@ export interface ReciboCreateDTO {
   monto: number;
   observaciones: string | null;
 }
+
+export interface RecibosResumen {
+  total: number;
+  activos: number;
+  anulados: number;
+  montoTotal: number;
+}
