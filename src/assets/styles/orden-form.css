@@ -62,8 +62,16 @@
   align-items: flex-start;
 }
 
-.orden-form-pedido-helisa .field {
+/* Sin esto, el boton se encogia junto con el input y su label "Buscar
+   Pedido" pasaba a dos lineas, quedando mas alto que los campos de fecha. */
+.orden-form-pedido-helisa .p-inputtext {
   flex: 1;
+  min-width: 0;
+}
+
+.orden-form-pedido-helisa .p-button {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .buscar-pedido-subtitle {

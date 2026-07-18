@@ -14,6 +14,7 @@ export interface EntradaMercancia {
   id: number;
   numeroEntradaHelisa: string;
   fechaEntrada: string;
+  ordenId: number;
   numeroOrden: string;
   proveedorNombre: string;
   usuarioCreoNombre: string;

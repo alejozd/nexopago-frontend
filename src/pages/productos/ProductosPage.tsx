@@ -48,7 +48,7 @@ export function ProductosPage() {
     <Card title="Productos">
       <div className="productos-toolbar">
         <div className="productos-total-kpi">
-          <KpiCard icon="pi pi-box" label="Total de productos" value={String(data?.totalRecords ?? 0)} accent="primary" />
+          <KpiCard icon="pi pi-box" label="Total de productos" value={String(data?.totalRecords ?? 0)} accent="primary" size="compact" />
         </div>
 
         <div className="productos-toolbar" style={{ marginBottom: 0 }}>

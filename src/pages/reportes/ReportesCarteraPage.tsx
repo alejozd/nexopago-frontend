@@ -119,24 +119,28 @@ export function ReportesCarteraPage() {
           label="Total Cartera Pendiente"
           value={formatCurrency(resumen?.totalPendiente ?? 0)}
           accent="primary"
+          size="compact"
         />
         <KpiCard
           icon="pi pi-file"
           label="Órdenes con Saldo"
           value={String(resumen?.cantidadOrdenesConSaldo ?? 0)}
           accent="warning"
+          size="compact"
         />
         <KpiCard
           icon="pi pi-clock"
           label="Orden Más Antigua"
           value={resumen?.ordenMasAntiguaNumero ? `${resumen.ordenMasAntiguaNumero} (${resumen.ordenMasAntiguaDias}d)` : '—'}
           accent="danger"
+          size="compact"
         />
         <KpiCard
           icon="pi pi-building"
           label="Proveedor con Mayor Deuda"
           value={resumen?.proveedorMayorDeudaNombre ?? '—'}
           accent="success"
+          size="compact"
         />
       </div>
 

@@ -78,31 +78,33 @@
 
 .kpi-label {
   font-size: 0.82rem;
-  color: var(--np-text-muted);
+  color: var(--np-text-body);
   margin-top: 0.15rem;
 }
 
 .kpi-card-wrapper--compact .kpi-card {
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .kpi-card-wrapper--compact .kpi-icon {
-  width: 2.25rem;
-  height: 2.25rem;
-  font-size: 1.05rem;
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.95rem;
 }
 
 .kpi-card-wrapper--compact .kpi-value {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
 }
 
 .kpi-card-wrapper--compact .kpi-label {
-  font-size: 0.75rem;
-  margin-top: 0.1rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  margin-top: 0.05rem;
+  color: var(--np-text-body);
 }
 
 .kpi-card-wrapper--compact .p-card-body {
-  padding: 0.75rem 1rem;
+  padding: 0.65rem 1rem;
 }
 
 .dashboard-charts {
@@ -131,6 +133,17 @@
   position: relative;
   flex: 1;
   min-height: 280px;
+}
+
+/* Chart.js (responsive + maintainAspectRatio:false) mide el tamaño del
+   contenedor INMEDIATO del canvas, que es el div.p-chart que renderiza
+   PrimeReact, no dashboard-chart-wrap. Sin esto el canvas colapsa a su
+   alto intrinseco y el grafico de barras no llena la card (a diferencia
+   del circular, cuyo aspecto cuadrado disimula el mismo problema). */
+.dashboard-chart-wrap .p-chart {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .dashboard-chart-wrap-pie {

@@ -7,6 +7,7 @@ export interface ReciboCaja {
   monto: number;
   tipoPago: 'PARCIAL' | 'TOTAL';
   estado: 'ACTIVO' | 'ANULADO';
+  observaciones: string | null;
 }
 
 // tipoPago NO se envia: el backend lo calcula comparando monto contra el

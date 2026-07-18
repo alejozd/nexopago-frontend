@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { DataTable, type DataTablePageEvent, type DataTableSortEvent } from 'primereact/datatable';
+import { useNavigate } from 'react-router-dom';
+import { DataTable, type DataTablePageEvent, type DataTableRowClickEvent, type DataTableSortEvent } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
 import { useEntradasQuery } from '../../hooks/entradas/useEntradasQuery';
@@ -13,6 +14,7 @@ import '../../assets/styles/entradas.css';
 const DEFAULT_PARAMS: PagedParams = { page: 1, rows: 20, sortField: 'fechaEntrada', sortOrder: -1 };
 
 export function EntradasListPage() {
+  const navigate = useNavigate();
   const [params, setParams] = useState<PagedParams>(DEFAULT_PARAMS);
   const { data, isLoading } = useEntradasQuery(params);
   const { data: resumen } = useEntradasResumenQuery();
@@ -29,16 +31,22 @@ export function EntradasListPage() {
     }));
   };
 
+  const onRowClick = (event: DataTableRowClickEvent) => {
+    const entrada = event.data as EntradaMercancia;
+    navigate(`/ordenes/${entrada.ordenId}`);
+  };
+
   return (
     <div>
       <div className="kpi-row">
-        <KpiCard icon="pi pi-truck" label="Total Entradas" value={String(resumen?.total ?? 0)} accent="primary" />
-        <KpiCard icon="pi pi-calendar" label="Último Mes" value={String(resumen?.ultimoMes ?? 0)} accent="success" />
+        <KpiCard icon="pi pi-truck" label="Total Entradas" value={String(resumen?.total ?? 0)} accent="primary" size="compact" />
+        <KpiCard icon="pi pi-calendar" label="Último Mes" value={String(resumen?.ultimoMes ?? 0)} accent="success" size="compact" />
         <KpiCard
           icon="pi pi-file"
           label="Órdenes Asociadas"
           value={String(resumen?.ordenesAsociadas ?? 0)}
           accent="warning"
+          size="compact"
         />
       </div>
 
@@ -62,6 +70,8 @@ export function EntradasListPage() {
         sortField={params.sortField}
         sortOrder={params.sortOrder}
         dataKey="id"
+        onRowClick={onRowClick}
+        rowClassName={() => 'entradas-row-clickable'}
       >
         <Column field="numeroEntradaHelisa" header="N° Entrada Helisa" sortable />
         <Column

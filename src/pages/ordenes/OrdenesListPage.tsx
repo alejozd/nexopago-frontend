@@ -54,9 +54,9 @@ export function OrdenesListPage() {
   return (
     <div>
       <div className="kpi-row">
-        <KpiCard icon="pi pi-clock" label="Pendientes" value={String(resumen?.pendientes ?? 0)} accent="warning" />
-        <KpiCard icon="pi pi-check-circle" label="Recibidas" value={String(resumen?.recibidas ?? 0)} accent="success" />
-        <KpiCard icon="pi pi-ban" label="Anuladas" value={String(resumen?.anuladas ?? 0)} accent="danger" />
+        <KpiCard icon="pi pi-clock" label="Pendientes" value={String(resumen?.pendientes ?? 0)} accent="warning" size="compact" />
+        <KpiCard icon="pi pi-check-circle" label="Recibidas" value={String(resumen?.recibidas ?? 0)} accent="success" size="compact" />
+        <KpiCard icon="pi pi-ban" label="Anuladas" value={String(resumen?.anuladas ?? 0)} accent="danger" size="compact" />
       </div>
 
       <Card title="Órdenes de Compra">

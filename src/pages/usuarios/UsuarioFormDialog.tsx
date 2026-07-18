@@ -117,7 +117,7 @@ export function UsuarioFormDialog({ visible, usuario, onHide }: UsuarioFormDialo
       header={isEditMode ? 'Editar Usuario' : 'Nuevo Usuario'}
       visible={visible}
       onHide={onHide}
-      style={{ width: '32rem' }}
+      style={{ width: '40rem' }}
       modal
     >
       <form onSubmit={handleSubmit(onSubmit)} className="proveedor-form" noValidate>

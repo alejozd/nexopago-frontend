@@ -8,6 +8,16 @@
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  /* Sin esto, el ancho minimo intrinseco del <input> nativo (~20ch) obliga
+     al grid item a mantenerse mas ancho que su columna fr, empujando la
+     fila fuera del dialogo en vez de que el input se achique. */
+  min-width: 0;
+}
+
+.proveedor-form .field .p-inputtext,
+.proveedor-form .field .p-password,
+.proveedor-form .field .p-multiselect {
+  width: 100%;
 }
 
 .proveedor-form .field label {

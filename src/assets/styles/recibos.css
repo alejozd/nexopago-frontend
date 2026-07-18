@@ -16,6 +16,17 @@
   color: var(--np-text-body);
 }
 
+.recibo-form .field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.recibo-form .field-row .field {
+  min-width: 0;
+}
+
 .recibo-form .p-dropdown,
 .recibo-form .p-calendar,
 .recibo-form .p-inputnumber {
@@ -43,12 +54,19 @@
 }
 
 .recibo-form-section {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   margin: 0;
   font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--np-text-muted);
+  color: var(--np-primary);
+}
+
+.recibo-form-section i {
+  font-size: 0.85rem;
 }
 
 .recibo-form .p-divider {
@@ -69,4 +87,30 @@
   justify-content: flex-end;
   gap: 0.5rem;
   margin-top: 0.5rem;
+}
+
+.recibo-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.recibo-view-observaciones label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--np-text-body);
+  margin-bottom: 0.35rem;
+}
+
+.recibo-view-observaciones p {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--np-content-bg);
+  border-radius: var(--np-radius-control);
+  color: var(--np-text-title);
+  font-size: 0.88rem;
+  white-space: pre-wrap;
 }

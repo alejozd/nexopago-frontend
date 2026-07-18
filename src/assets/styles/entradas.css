@@ -3,3 +3,11 @@
   color: var(--np-text-muted);
   margin: 0 0 1rem;
 }
+
+.entradas-row-clickable {
+  cursor: pointer;
+}
+
+.entradas-row-clickable:hover {
+  background-color: var(--np-content-bg) !important;
+}

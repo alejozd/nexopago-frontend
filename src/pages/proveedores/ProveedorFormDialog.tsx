@@ -92,7 +92,7 @@ export function ProveedorFormDialog({ visible, proveedor, onHide }: ProveedorFor
       header={isEditMode ? 'Editar Proveedor' : 'Nuevo Proveedor'}
       visible={visible}
       onHide={onHide}
-      style={{ width: '44rem' }}
+      style={{ width: '52rem' }}
       modal
     >
       <form onSubmit={handleSubmit(onSubmit)} className="proveedor-form" noValidate>

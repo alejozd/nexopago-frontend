@@ -95,24 +95,28 @@ export function DashboardPage() {
           label="Órdenes Pendientes"
           value={String(dashboard.ordenesPendientes)}
           accent="warning"
+          size="compact"
         />
         <KpiCard
           icon="pi pi-receipt"
           label="Recibos Creados"
           value={String(dashboard.recibosCreados)}
           accent="primary"
+          size="compact"
         />
         <KpiCard
           icon="pi pi-clock"
           label="Pagos Pendientes"
           value={String(dashboard.pagosPendientes)}
           accent="danger"
+          size="compact"
         />
         <KpiCard
           icon="pi pi-wallet"
           label="Valor Total de Cartera"
           value={formatCurrency(dashboard.valorTotalCartera)}
           accent="success"
+          size="compact"
         />
       </div>
 

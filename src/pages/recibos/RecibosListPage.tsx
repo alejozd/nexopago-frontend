@@ -12,6 +12,7 @@ import { StatusTag } from '../../components/common/StatusTag';
 import { RowActions } from '../../components/common/RowActions';
 import { KpiCard } from '../../components/common/KpiCard';
 import { ReciboFormDialog } from './ReciboFormDialog';
+import { ReciboViewDialog } from './ReciboViewDialog';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import type { ReciboCaja } from '../../types/recibo.types';
 import type { PagedParams } from '../../types/common.types';
@@ -21,6 +22,7 @@ const DEFAULT_PARAMS: PagedParams = { page: 1, rows: 20 };
 export function RecibosListPage() {
   const [params, setParams] = useState<PagedParams>(DEFAULT_PARAMS);
   const [dialogVisible, setDialogVisible] = useState(false);
+  const [reciboToView, setReciboToView] = useState<ReciboCaja | null>(null);
   const { data, isLoading } = useRecibosQuery(params);
   const { data: resumen } = useRecibosResumenQuery();
   const anularMutation = useAnularRecibo();
@@ -52,10 +54,10 @@ export function RecibosListPage() {
   return (
     <div>
       <div className="kpi-row">
-        <KpiCard icon="pi pi-receipt" label="Total Recibos" value={String(resumen?.total ?? 0)} accent="primary" />
-        <KpiCard icon="pi pi-check-circle" label="Activos" value={String(resumen?.activos ?? 0)} accent="success" />
-        <KpiCard icon="pi pi-ban" label="Anulados" value={String(resumen?.anulados ?? 0)} accent="danger" />
-        <KpiCard icon="pi pi-wallet" label="Monto Total" value={formatCurrency(resumen?.montoTotal ?? 0)} accent="warning" />
+        <KpiCard icon="pi pi-receipt" label="Total Recibos" value={String(resumen?.total ?? 0)} accent="primary" size="compact" />
+        <KpiCard icon="pi pi-check-circle" label="Activos" value={String(resumen?.activos ?? 0)} accent="success" size="compact" />
+        <KpiCard icon="pi pi-ban" label="Anulados" value={String(resumen?.anulados ?? 0)} accent="danger" size="compact" />
+        <KpiCard icon="pi pi-wallet" label="Monto Total" value={formatCurrency(resumen?.montoTotal ?? 0)} accent="warning" size="compact" />
       </div>
 
       <Card title="Recibos de Caja">
@@ -102,6 +104,11 @@ export function RecibosListPage() {
             <RowActions
               actions={[
                 {
+                  icon: 'pi pi-eye',
+                  tooltip: 'Ver',
+                  onClick: () => setReciboToView(row),
+                },
+                {
                   icon: 'pi pi-ban',
                   tooltip: 'Anular',
                   severity: 'danger',
@@ -116,6 +123,7 @@ export function RecibosListPage() {
       </DataTable>
 
       <ReciboFormDialog visible={dialogVisible} onHide={() => setDialogVisible(false)} />
+      <ReciboViewDialog visible={reciboToView !== null} recibo={reciboToView} onHide={() => setReciboToView(null)} />
       </Card>
     </div>
   );
