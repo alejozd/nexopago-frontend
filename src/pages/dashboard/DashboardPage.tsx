@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
+import type { Chart as ChartJS, ChartOptions, Plugin, ScriptableContext } from 'chart.js';
 import { Chart } from 'primereact/chart';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -21,6 +22,37 @@ function saludoDelDia(): string {
   return 'Buenas noches';
 }
 
+// Variar solo luminosidad/saturacion dentro de un mismo matiz (como en el
+// primer intento) se percibe como "el mismo color" a simple vista: el ojo
+// distingue matices distintos mucho mejor que tonos claros/oscuros del mismo
+// color. Por eso el matiz rota entre verde y azul (150-210), pasando por el
+// --np-teal (172) del sistema de diseño, y se evitan naranja/rojo/amarillo
+// porque ya tienen significado semantico (warning/danger) en otras pantallas.
+function colorMesHsl(indice: number, total: number, ajusteLuminosidad = 0): string {
+  const t = total <= 1 ? 0 : indice / (total - 1);
+  const matiz = 150 + t * 60;
+  const luminosidad = Math.min(90, 45 + ajusteLuminosidad);
+  return `hsl(${matiz} 55% ${luminosidad}%)`;
+}
+
+// Chart.js no soporta 3D; este plugin simula profundidad con una sombra
+// proyectada detras de cada barra (mismo tono que --np-ink) en vez de
+// distorsionar la perspectiva, que es lo que hace ilegibles a los graficos 3D reales.
+const sombraBarrasPlugin: Plugin<'bar'> = {
+  id: 'npSombraBarras',
+  beforeDatasetsDraw(chart: ChartJS) {
+    const { ctx } = chart;
+    ctx.save();
+    ctx.shadowColor = 'rgba(22, 36, 31, 0.25)';
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 4;
+  },
+  afterDatasetsDraw(chart: ChartJS) {
+    chart.ctx.restore();
+  },
+};
+
 export function DashboardPage() {
   const usuario = useAuthStore((state) => state.usuario);
   const { data: dashboard, isLoading, isError } = useDashboardQuery();
@@ -34,6 +66,8 @@ export function DashboardPage() {
     return <p>No fue posible cargar el dashboard.</p>;
   }
 
+  const totalMeses = dashboard.pagosMensuales.length;
+
   const barData = {
     labels: dashboard.pagosMensuales.map((p) => formatMonthPeriod(p.periodo)),
     datasets: [
@@ -41,10 +75,21 @@ export function DashboardPage() {
         label: 'Pagos mensuales',
         data: dashboard.pagosMensuales.map((p) => p.total),
         // Chart.js dibuja en un <canvas>, que no resuelve custom properties
-        // CSS (var(--np-*)) porque no forma parte del DOM/CSSOM — el color
-        // se fija literal, en sincronia manual con --np-teal del sistema de
-        // diseño (dato secundario, no el acento de sello exclusivo).
-        backgroundColor: '#0E6B62',
+        // CSS (var(--np-*)) porque no forma parte del DOM/CSSOM — los colores
+        // se calculan en JS, dentro de la misma familia --np-teal del sistema
+        // de diseño (dato secundario, no el acento de sello exclusivo).
+        backgroundColor: (context: ScriptableContext<'bar'>) => {
+          const { chart, dataIndex } = context;
+          const base = colorMesHsl(dataIndex, totalMeses);
+          if (!chart.chartArea) return base;
+          const { top, bottom } = chart.chartArea;
+          const degradado = chart.ctx.createLinearGradient(0, top, 0, bottom);
+          degradado.addColorStop(0, colorMesHsl(dataIndex, totalMeses, 22));
+          degradado.addColorStop(1, base);
+          return degradado;
+        },
+        borderRadius: 6,
+        borderSkipped: false,
       },
     ],
   };
@@ -68,9 +113,27 @@ export function DashboardPage() {
   // maximo real es 675k) deja un margen vacio notorio arriba de la barra. Se
   // fija un maximo ajustado al dato real (+15%) en vez de al numero redondo.
   const maxPagoMensual = Math.max(0, ...dashboard.pagosMensuales.map((p) => p.total));
-  const barOptions = {
+
+  // Cascada: cada barra entra con un pequeño retraso respecto a la anterior
+  // en vez de todas a la vez. La bandera "yaAnimo" evita que ese retraso se
+  // repita en updates posteriores (hover, resize), solo aplica al dibujo inicial.
+  let yaAnimo = false;
+  const barOptions: ChartOptions<'bar'> = {
     maintainAspectRatio: false,
     plugins: { legend: { display: false } },
+    animation: {
+      duration: 700,
+      easing: 'easeOutQuart',
+      delay: (context: ScriptableContext<'bar'>) => {
+        if (context.type === 'data' && context.mode === 'default' && !yaAnimo) {
+          return context.dataIndex * 90;
+        }
+        return 0;
+      },
+      onComplete: () => {
+        yaAnimo = true;
+      },
+    },
     scales: {
       y: {
         beginAtZero: true,
@@ -131,7 +194,7 @@ export function DashboardPage() {
       <div className="dashboard-charts">
         <Card title="Pagos mensuales">
           <div className="dashboard-chart-wrap">
-            <Chart type="bar" data={barData} options={barOptions} />
+            <Chart type="bar" data={barData} options={barOptions} plugins={[sombraBarrasPlugin]} />
           </div>
         </Card>
         <Card title="Órdenes por Estado">
