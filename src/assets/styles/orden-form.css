@@ -112,3 +112,36 @@
   gap: 0.5rem;
   margin-top: 1rem;
 }
+
+/* Linea del pedido Helisa sin saldo disponible: se muestra igual (para que
+   el usuario entienda por que no se puede tomar) pero atenuada. */
+.buscar-pedido-linea-agotada {
+  opacity: 0.75;
+}
+
+.buscar-pedido-saldo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.82rem;
+}
+
+.buscar-pedido-saldo-tag {
+  width: fit-content;
+}
+
+.buscar-pedido-hint-danger {
+  color: var(--np-danger-text);
+  font-weight: 600;
+}
+
+.orden-form-cantidad-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.orden-form-cantidad-hint {
+  font-size: 0.72rem;
+  color: var(--np-text-muted);
+}

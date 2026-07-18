@@ -22,6 +22,9 @@ export interface OrdenLinea {
   cantidad: number;
   precioUnitario: number;
   subtotal: number;
+  // Consecutivo de la linea del pedido Helisa de la que salio esta cantidad
+  // (null si la linea se agrego manualmente, sin pasar por el buscador).
+  consecutivoPedidoHelisa: number | null;
 }
 
 export interface OrdenDetalle {
@@ -45,6 +48,9 @@ export interface OrdenLineaCreateDTO {
   productoId: number;
   cantidad: number;
   precioUnitario: number;
+  // Ver OrdenLinea.consecutivoPedidoHelisa: se manda para que el backend
+  // pueda descontar el saldo disponible de esa linea del pedido Helisa.
+  consecutivoPedidoHelisa?: number | null;
 }
 
 export interface OrdenCreateDTO {

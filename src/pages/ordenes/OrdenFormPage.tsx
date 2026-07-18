@@ -44,10 +44,19 @@ interface LineaForm {
   producto: Producto | null;
   cantidad: number;
   precioUnitario: number;
+  // Consecutivo de la linea del pedido Helisa de la que salio esta linea;
+  // null si se agrego manualmente (boton "Agregar línea", sin pasar por el
+  // buscador de pedidos).
+  consecutivoPedidoHelisa: number | null;
+  // Saldo disponible que informo el backend al traer la linea desde el
+  // buscador (tope para el input de Cantidad). null cuando no se conoce: ni
+  // en lineas manuales ni en lineas ya guardadas de una orden en edicion (el
+  // backend es la fuente de verdad final; si igual se excede, responde 400).
+  cantidadMaximaHelisa: number | null;
 }
 
 function crearLineaVacia(): LineaForm {
-  return { producto: null, cantidad: 1, precioUnitario: 0 };
+  return { producto: null, cantidad: 1, precioUnitario: 0, consecutivoPedidoHelisa: null, cantidadMaximaHelisa: null };
 }
 
 // Producto "sentinela" (id: 0) para una linea del pedido Helisa cuya
@@ -139,6 +148,10 @@ export function OrdenFormPage() {
           producto: productoDesdeLinea(linea.productoId, linea.productoDescripcion),
           cantidad: linea.cantidad,
           precioUnitario: linea.precioUnitario,
+          consecutivoPedidoHelisa: linea.consecutivoPedidoHelisa,
+          // No se conoce un saldo "fresco" para una linea ya guardada (no
+          // viene del buscador en este render); el backend valida al guardar.
+          cantidadMaximaHelisa: null,
         })),
       );
     }
@@ -184,15 +197,27 @@ export function OrdenFormPage() {
     try {
       const nuevasLineas = await Promise.all(
         detalle.lineas.map(async (linea): Promise<LineaForm> => {
+          // El dialogo ya filtro las lineas agotadas (saldoDisponible <= 0):
+          // lo que llega aca siempre tiene saldo > 0. La cantidad por
+          // defecto es 1 (o el saldo si es menor a 1), topeada al saldo.
+          const cantidadPorDefecto = Math.min(1, linea.saldoDisponible);
           const resultado = await getProductos({ page: 1, rows: 1, search: linea.referencia });
           const productoLocal = resultado.data[0];
           if (productoLocal) {
-            return { producto: productoLocal, cantidad: 1, precioUnitario: productoLocal.precioReferencia ?? 0 };
+            return {
+              producto: productoLocal,
+              cantidad: cantidadPorDefecto,
+              precioUnitario: productoLocal.precioReferencia ?? 0,
+              consecutivoPedidoHelisa: linea.consecutivo,
+              cantidadMaximaHelisa: linea.saldoDisponible,
+            };
           }
           return {
             producto: productoNoSincronizado(linea.referencia, linea.descripcion),
-            cantidad: 1,
+            cantidad: cantidadPorDefecto,
             precioUnitario: 0,
+            consecutivoPedidoHelisa: linea.consecutivo,
+            cantidadMaximaHelisa: linea.saldoDisponible,
           };
         }),
       );
@@ -232,6 +257,7 @@ export function OrdenFormPage() {
         productoId: linea.producto!.id,
         cantidad: linea.cantidad,
         precioUnitario: linea.precioUnitario,
+        consecutivoPedidoHelisa: linea.consecutivoPedidoHelisa,
       }));
 
     if (detalles.length === 0) {
@@ -371,13 +397,19 @@ export function OrdenFormPage() {
             <Column
               header="Cantidad"
               body={(row: LineaForm, options: ColumnBodyOptions) => (
-                <InputNumber
-                  value={row.cantidad}
-                  onValueChange={(e) => updateLinea(options.rowIndex, { cantidad: e.value ?? 0 })}
-                  min={0}
-                  mode="decimal"
-                  minFractionDigits={0}
-                />
+                <div className="orden-form-cantidad-cell">
+                  <InputNumber
+                    value={row.cantidad}
+                    onValueChange={(e) => updateLinea(options.rowIndex, { cantidad: e.value ?? 0 })}
+                    min={0}
+                    max={row.cantidadMaximaHelisa ?? undefined}
+                    mode="decimal"
+                    minFractionDigits={0}
+                  />
+                  {row.cantidadMaximaHelisa !== null && (
+                    <small className="orden-form-cantidad-hint">Máx. disponible: {row.cantidadMaximaHelisa}</small>
+                  )}
+                </div>
               )}
             />
             <Column
@@ -438,6 +470,7 @@ export function OrdenFormPage() {
         visible={buscarPedidoVisible}
         onHide={() => setBuscarPedidoVisible(false)}
         onConfirm={handleConfirmPedidoHelisa}
+        ordenId={ordenId}
       />
     </div>
   );
