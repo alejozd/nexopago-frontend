@@ -58,22 +58,32 @@
 }
 
 .kpi-icon-warning {
-  background: linear-gradient(135deg, var(--np-warning), #fbbf24);
+  background: linear-gradient(135deg, var(--np-warning), color-mix(in srgb, var(--np-warning) 55%, white));
 }
 
 .kpi-icon-danger {
-  background: linear-gradient(135deg, var(--np-danger), #f87171);
+  background: linear-gradient(135deg, var(--np-danger), color-mix(in srgb, var(--np-danger) 55%, white));
 }
 
 .kpi-icon-success {
-  background: linear-gradient(135deg, var(--np-success), #34d399);
+  background: linear-gradient(135deg, var(--np-success), color-mix(in srgb, var(--np-success) 55%, white));
 }
 
 .kpi-value {
+  font-family: var(--np-font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: 2.25rem;
   font-weight: 700;
   color: var(--np-text-title);
   line-height: 1.2;
+}
+
+/* Variante "destacado": el valor toma la tinta de sello mas oscura, para
+   resaltar UN solo KPI dentro de una fila (ej. el total de cartera) sin
+   introducir un quinto color de acento. Ver KpiCard.tsx (prop opcional
+   `destacado`). */
+.kpi-card-wrapper--destacado .kpi-value {
+  color: var(--np-sello-text);
 }
 
 .kpi-label {

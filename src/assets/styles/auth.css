@@ -10,7 +10,7 @@
   justify-content: center;
   padding: 3rem;
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Ccircle cx='3' cy='3' r='2.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"),
-    linear-gradient(160deg, #0f172a 0%, #1e293b 55%, #1d4ed8 140%);
+    linear-gradient(160deg, #0b1712 0%, var(--np-ink) 55%, var(--np-sello) 140%);
   color: #fff;
   position: relative;
   overflow: hidden;
@@ -27,10 +27,10 @@
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--np-primary), #60a5fa);
+  background: linear-gradient(135deg, var(--np-primary), color-mix(in srgb, var(--np-primary) 55%, white));
   color: #fff;
   font-size: 1.4rem;
-  box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.55);
+  box-shadow: 0 8px 20px -4px rgba(194, 86, 11, 0.55);
   margin-bottom: 1.5rem;
 }
 
@@ -46,7 +46,7 @@
   margin: 0 0 2.5rem;
   font-size: 1rem;
   line-height: 1.6;
-  color: #cbd5e1;
+  color: var(--np-sidebar-text);
 }
 
 .login-features {
@@ -64,7 +64,7 @@
   gap: 0.85rem;
   font-size: 0.9rem;
   line-height: 1.5;
-  color: #e2e8f0;
+  color: var(--np-line);
 }
 
 .login-feature-icon {
@@ -76,7 +76,7 @@
   flex-shrink: 0;
   border-radius: var(--np-radius-control);
   background: rgba(255, 255, 255, 0.1);
-  color: #93c5fd;
+  color: var(--np-sello-soft);
 }
 
 .login-form-panel {

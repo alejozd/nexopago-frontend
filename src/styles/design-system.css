@@ -1,46 +1,97 @@
 /* NexoPago — Sistema de Diseño (fuente única de tokens). */
+
+@font-face {
+  font-family: 'Big Shoulders';
+  src: url('../assets/fonts/BigShoulders-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Public Sans';
+  src: url('../assets/fonts/PublicSans-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('../assets/fonts/IBMPlexMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('../assets/fonts/IBMPlexMono-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   color-scheme: light;
 
-  /* Color */
-  --np-primary: #2563eb;
-  --np-primary-hover: #1d4ed8;
-  --np-primary-light: #dbeafe;
-  --np-primary-ring: rgba(37, 99, 235, 0.35);
-  --np-secondary: #64748b;
-  --np-content-bg: #f8fafc;
-  --np-surface-card: #ffffff;
-  --np-sidebar-bg: #1e293b;
-  --np-sidebar-text: #cbd5e1;
+  /* Color — paleta aprobada (mockup de identidad visual) */
+  --np-ink: #16241f; /* verde-negro profundo — sidebar, títulos, texto principal */
+  --np-paper: #f4f6f2; /* fondo de página, neutro verde-frío (NO crema) */
+  --np-surface: #ffffff; /* tarjetas */
+  --np-sello: #c2560b; /* cobre/tinta de sello — EL ÚNICO acento */
+  --np-sello-text: #9a430b; /* variante más oscura, AA-safe como texto sobre fondo claro */
+  --np-sello-soft: #f7e4d4; /* tinte del acento para chips/etiquetas */
+  --np-teal: #0e6b62; /* dato secundario — enlaces, series secundarias de gráficos */
+  --np-teal-soft: #dceeeb;
+  --np-line: #dce3d8; /* borde/hairline cálido-verde */
+  --np-line-strong: #c7d1c2;
+  --np-text-body: #3c463f;
+  --np-text-muted: #74806f;
 
-  --np-text-title: #1e293b; /* slate-800 */
-  --np-text-body: #475569; /* slate-600 */
-  --np-text-muted: #94a3b8; /* slate-400 */
-  --np-border: #e2e8f0;
+  /* Semántico — deliberadamente separado del acento */
+  --np-success: #1b7a4d;
+  --np-success-bg: #e1f3e7;
+  --np-warning: #a8660f;
+  --np-warning-bg: #fbeed7;
+  --np-danger: #b3261e;
+  --np-danger-bg: #fbe2e0;
+  --np-neutral: #46596e;
+  --np-neutral-bg: #e8ecf1;
 
-  --np-success: #10b981;
-  --np-success-bg: #d1fae5;
-  --np-success-text: #065f46;
-  --np-warning: #f59e0b;
-  --np-warning-bg: #fef3c7;
-  --np-warning-text: #92400e;
-  --np-danger: #ef4444;
-  --np-danger-bg: #fee2e2;
-  --np-danger-text: #991b1b;
-  --np-info: #3b82f6;
-  --np-info-bg: #dbeafe;
-  --np-info-text: #1e40af;
+  /* Alias de compatibilidad: nombres de tokens preexistentes que el resto
+     del código (sidebar, layout, tags, PrimeReact overrides, etc.) ya
+     consume via var(--np-*). Se conservan para no reescribir cada
+     consumidor — todos resuelven a la paleta aprobada de arriba. */
+  --np-primary: var(--np-sello);
+  --np-primary-hover: var(--np-sello-text);
+  --np-primary-light: var(--np-sello-soft);
+  --np-primary-ring: rgba(194, 86, 11, 0.35);
+  --np-secondary: var(--np-text-muted);
+  --np-content-bg: var(--np-paper);
+  --np-surface-card: var(--np-surface);
+  --np-sidebar-bg: var(--np-ink);
+  --np-sidebar-text: #c9d3c6; /* texto de nav sobre --np-ink, tomado del mockup */
+  --np-text-title: var(--np-ink);
+  --np-border: var(--np-line);
+  --np-success-text: var(--np-success);
+  --np-warning-text: var(--np-warning);
+  --np-danger-text: var(--np-danger);
+  --np-info: var(--np-teal);
+  --np-info-bg: var(--np-teal-soft);
+  --np-info-text: var(--np-teal);
 
   /* Radios */
   --np-radius-card: 12px;
   --np-radius-control: 8px;
   --np-radius-pill: 9999px;
 
-  /* Sombras */
-  --np-shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  --np-shadow-card-hover: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
-  --np-shadow-topbar: 0 1px 2px rgba(15, 23, 42, 0.06);
-  --np-shadow-sidebar: 2px 0 8px rgba(0, 0, 0, 0.08);
+  /* Sombras (tono ajustado a --np-ink en vez del slate-900 anterior, para
+     que combinen con el nuevo fondo verde-neutro) */
+  --np-shadow-card: 0 1px 2px rgba(22, 36, 31, 0.06), 0 8px 24px -12px rgba(22, 36, 31, 0.18);
+  --np-shadow-card-hover: 0 10px 25px -5px rgba(22, 36, 31, 0.18), 0 8px 10px -6px rgba(22, 36, 31, 0.12);
+  --np-shadow-topbar: 0 1px 2px rgba(22, 36, 31, 0.06);
+  --np-shadow-sidebar: 2px 0 8px rgba(22, 36, 31, 0.12);
 
   /* Espaciado */
   --np-space-xs: 0.25rem;
@@ -50,7 +101,9 @@
   --np-space-xl: 2rem;
   --np-space-2xl: 3rem;
 
-  --np-font: 'Inter var', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --np-font-display: 'Big Shoulders', 'Arial Narrow', sans-serif;
+  --np-font: 'Public Sans', 'Segoe UI', system-ui, sans-serif;
+  --np-font-mono: 'IBM Plex Mono', 'Consolas', monospace;
 
   /* Overrides de las variables nativas de PrimeReact (tema lara-light-blue):
      esto propaga el sistema de diseño a Button/InputText/Tag/DataTable/Card/

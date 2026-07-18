@@ -40,7 +40,11 @@ export function DashboardPage() {
       {
         label: 'Pagos mensuales',
         data: dashboard.pagosMensuales.map((p) => p.total),
-        backgroundColor: '#2563eb',
+        // Chart.js dibuja en un <canvas>, que no resuelve custom properties
+        // CSS (var(--np-*)) porque no forma parte del DOM/CSSOM — el color
+        // se fija literal, en sincronia manual con --np-teal del sistema de
+        // diseño (dato secundario, no el acento de sello exclusivo).
+        backgroundColor: '#0E6B62',
       },
     ],
   };
@@ -50,7 +54,11 @@ export function DashboardPage() {
     datasets: [
       {
         data: dashboard.ordenesPorEstado.map((o) => o.cantidad),
-        backgroundColor: ['#2563eb', '#f59e0b', '#22c55e', '#ef4444', '#64748b'],
+        // Mismo motivo que arriba: literales en sincronia manual con los
+        // tokens semanticos (--np-teal/--np-warning/--np-success/--np-danger/
+        // --np-neutral). Se evita --np-sello a proposito: el sistema de
+        // diseño lo reserva como EL unico acento, no para series de charts.
+        backgroundColor: ['#0E6B62', '#A8660F', '#1B7A4D', '#B3261E', '#46596E'],
       },
     ],
   };

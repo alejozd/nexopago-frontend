@@ -80,15 +80,70 @@
   color: var(--np-text-title);
 }
 
+/* Timeline de trazabilidad — tratamiento de "sello": este es el UNICO lugar
+   de la app donde los marcadores usan el lenguaje visual de sello/tinta de
+   --np-sello (ver design-system.css). No replicar como decoracion en otras
+   pantallas. */
 .orden-timeline-marker {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.1rem;
-  height: 2.1rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 50%;
+  position: relative;
+  flex: none;
+  box-shadow: 0 2px 6px rgba(22, 36, 31, 0.18);
+}
+
+/* Etapa cumplida: circulo relleno de sello con un anillo punteado sutil. */
+.orden-timeline-marker--done {
+  background: var(--np-sello);
   color: #fff;
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.18);
+}
+
+.orden-timeline-marker--done::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--np-sello);
+  opacity: 0.45;
+}
+
+/* Etapa en curso: anillo tipo conic-gradient parcial (--tl-percent inline)
+   con el porcentaje en el centro, en la monoespaciada de cifras. */
+.orden-timeline-marker--active {
+  background: conic-gradient(var(--np-sello) 0% var(--tl-percent, 50%), var(--np-line) var(--tl-percent, 50%) 100%);
+}
+
+.orden-timeline-marker--active::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  background: var(--np-surface);
+  border-radius: 50%;
+}
+
+.orden-timeline-marker-percent {
+  position: relative;
+  z-index: 1;
+  font-family: var(--np-font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--np-sello-text);
+}
+
+/* Etapa pendiente: estilo neutro/apagado. */
+.orden-timeline-marker--pendiente {
+  background: var(--np-surface);
+  border: 1.5px solid var(--np-line);
+  color: var(--np-text-muted);
+  box-shadow: none;
+}
+
+.p-timeline-event-connector {
+  background-color: var(--np-line-strong);
 }
 
 .orden-timeline-status {
@@ -97,6 +152,7 @@
 }
 
 .orden-timeline-date {
+  font-family: var(--np-font-mono);
   font-size: 0.78rem;
   color: var(--np-text-muted);
 }

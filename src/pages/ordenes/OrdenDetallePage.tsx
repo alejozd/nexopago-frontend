@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
@@ -18,12 +18,18 @@ import type { OrdenDetalle, OrdenEstado, OrdenLinea } from '../../types/orden.ty
 import type { ReciboCaja } from '../../types/recibo.types';
 import '../../assets/styles/ordenes.css';
 
+type EtapaSello = 'done' | 'active' | 'pendiente';
+
 interface TimelineEvent {
   status: string;
   date?: string;
   icon: string;
-  color: string;
   description: string;
+  /** Estado visual del "sello" de trazabilidad: cumplida, en curso o
+   * pendiente. Ver construirTimeline() para el criterio de cada etapa. */
+  etapa: EtapaSello;
+  /** Porcentaje mostrado en el centro del marcador cuando etapa === 'active'. */
+  percent?: number;
 }
 
 // No hay tracking de cantidades recibidas en el backend, asi que el %
@@ -39,23 +45,35 @@ function calcularPorcentajePagado(orden: OrdenDetalle): number {
   return Math.min(100, Math.round((orden.montoPagado / orden.valorTotal) * 100));
 }
 
-function construirTimeline(orden: OrdenDetalle, recibos: ReciboCaja[]): TimelineEvent[] {
+// Criterio del "sello" de trazabilidad (marcadores done/active/pendiente):
+// - Creación de la orden: siempre "done" (la orden ya existe).
+// - Entrada de mercancía: se sigue mostrando solo cuando ya inicio (mismo
+//   comportamiento preexistente); "done" si quedo RECIBIDA por completo,
+//   "active" con el % estimado si quedo PARCIALMENTE_RECIBIDA.
+// - Recibos de caja: cada recibo real ya ocurrido se marca "done" (incluso
+//   si luego se anulo, el pago si se llego a registrar). Si aun no hay
+//   ningun recibo, el paso queda "active" con el % pagado cuando ya hay
+//   abonos parciales sin recibo formal, o "pendiente" si no se ha pagado
+//   nada.
+function construirTimeline(orden: OrdenDetalle, recibos: ReciboCaja[], porcentajePagado: number): TimelineEvent[] {
   const events: TimelineEvent[] = [
     {
       status: 'Creación de la Orden',
       date: formatDate(orden.fechaOrden),
       icon: 'pi pi-file',
-      color: '#2563eb',
+      etapa: 'done',
       description: `Orden ${orden.numeroOrden} creada para ${orden.proveedorNombre}.`,
     },
   ];
 
   const yaRecibida = orden.estado === 'PARCIALMENTE_RECIBIDA' || orden.estado === 'RECIBIDA';
   if (yaRecibida) {
+    const esParcial = orden.estado === 'PARCIALMENTE_RECIBIDA';
     events.push({
       status: 'Entrada de Mercancía',
       icon: 'pi pi-truck',
-      color: '#f59e0b',
+      etapa: esParcial ? 'active' : 'done',
+      percent: esParcial ? estimarPorcentajeRecibido(orden.estado) : undefined,
       description: 'Entrada de mercancía registrada.',
     });
   }
@@ -66,17 +84,25 @@ function construirTimeline(orden: OrdenDetalle, recibos: ReciboCaja[]): Timeline
         status: `Recibo ${recibo.numeroRecibo}`,
         date: formatDate(recibo.fechaRecibo),
         icon: 'pi pi-money-bill',
-        color: recibo.estado === 'ANULADO' ? '#ef4444' : '#22c55e',
+        etapa: 'done',
         description: `${formatCurrency(recibo.monto)} — ${recibo.tipoPago}${
           recibo.estado === 'ANULADO' ? ' (anulado)' : ''
         }`,
       });
     });
+  } else if (porcentajePagado > 0) {
+    events.push({
+      status: 'Recibos de Caja',
+      icon: 'pi pi-money-bill',
+      etapa: 'active',
+      percent: porcentajePagado,
+      description: 'Pagos parciales aplicados, aún sin recibo registrado.',
+    });
   } else {
     events.push({
       status: 'Recibos de Caja',
       icon: 'pi pi-money-bill',
-      color: '#94a3b8',
+      etapa: 'pendiente',
       description: 'Aún no se han registrado recibos para esta orden.',
     });
   }
@@ -106,7 +132,7 @@ export function OrdenDetallePage() {
 
   const porcentajeRecibido = estimarPorcentajeRecibido(orden.estado);
   const porcentajePagado = calcularPorcentajePagado(orden);
-  const timelineEvents = construirTimeline(orden, recibos);
+  const timelineEvents = construirTimeline(orden, recibos, porcentajePagado);
 
   const confirmAnular = () => {
     confirmDialog({
@@ -215,8 +241,19 @@ export function OrdenDetallePage() {
                 layout="horizontal"
                 align="top"
                 marker={(item: TimelineEvent) => (
-                  <span className="orden-timeline-marker" style={{ backgroundColor: item.color }}>
-                    <i className={item.icon} />
+                  <span
+                    className={`orden-timeline-marker orden-timeline-marker--${item.etapa}`}
+                    style={
+                      item.etapa === 'active' && item.percent != null
+                        ? ({ '--tl-percent': `${item.percent}%` } as CSSProperties)
+                        : undefined
+                    }
+                  >
+                    {item.etapa === 'active' && item.percent != null ? (
+                      <span className="orden-timeline-marker-percent">{item.percent}%</span>
+                    ) : (
+                      <i className={item.icon} />
+                    )}
                   </span>
                 )}
                 content={(item: TimelineEvent) => (
