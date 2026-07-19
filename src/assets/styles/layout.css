@@ -122,6 +122,24 @@
   background: var(--np-content-bg);
 }
 
+.app-topbar-empresa {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--np-text-title);
+  background: var(--np-content-bg);
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--np-radius-control);
+  white-space: nowrap;
+}
+
+.app-topbar-empresa .pi {
+  font-size: 0.9rem;
+  color: var(--np-primary);
+}
+
 .app-topbar-right {
   display: flex;
   align-items: center;
