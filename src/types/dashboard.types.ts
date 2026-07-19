@@ -1,3 +1,5 @@
+import type { CarteraProveedor } from './reporte.types';
+
 export interface PagoMensual {
   periodo: string;
   total: number;
@@ -8,6 +10,11 @@ export interface OrdenEstadoCount {
   cantidad: number;
 }
 
+export interface EntradaPorSemana {
+  semanaInicio: string;
+  cantidad: number;
+}
+
 export interface Dashboard {
   ordenesPendientes: number;
   recibosCreados: number;
@@ -15,4 +22,6 @@ export interface Dashboard {
   valorTotalCartera: number;
   pagosMensuales: PagoMensual[];
   ordenesPorEstado: OrdenEstadoCount[];
+  topProveedoresCartera: CarteraProveedor[];
+  entradasRecientes: EntradaPorSemana[];
 }

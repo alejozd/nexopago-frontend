@@ -78,6 +78,26 @@
   line-height: 1.2;
 }
 
+/* Fondo degradado tenue segun el accent de cada tarjeta (no un quinto color
+   nuevo) -- aplica a las 4 tarjetas KPI del dashboard por igual, para que
+   "destacado" (ver mas abajo) solo se note en tamaño/color del valor, no en
+   que unas tengan fondo liso y otras degradado. */
+.kpi-accent-success {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--np-success) 14%, white), white);
+}
+
+.kpi-accent-primary {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--np-primary) 14%, white), white);
+}
+
+.kpi-accent-warning {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--np-warning) 14%, white), white);
+}
+
+.kpi-accent-danger {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--np-danger) 14%, white), white);
+}
+
 /* Variante "destacado": el valor toma la tinta de sello mas oscura, para
    resaltar UN solo KPI dentro de una fila (ej. el total de cartera) sin
    introducir un quinto color de acento. Ver KpiCard.tsx (prop opcional
@@ -90,6 +110,12 @@
   font-size: 0.82rem;
   color: var(--np-text-body);
   margin-top: 0.15rem;
+}
+
+.kpi-subtitulo {
+  font-size: 0.78rem;
+  color: var(--np-text-muted);
+  margin-top: 0.4rem;
 }
 
 .kpi-card-wrapper--compact .kpi-card {
@@ -117,16 +143,78 @@
   padding: 0.65rem 1rem;
 }
 
+/* Layout exclusivo del Dashboard: NO se toca .kpi-row (theme.css), la usan
+   otras paginas (Reportes, Ordenes, etc.) con sus 4 tarjetas al mismo
+   tamaño. Aqui "Valor Total de Cartera" queda grande a la izquierda y las
+   otras 3 en su propia fila compacta a la derecha. */
+.dashboard-kpi-destacado {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 2fr;
+  gap: var(--np-space-md);
+  align-items: stretch;
+  margin-bottom: var(--np-space-lg);
+}
+
+.dashboard-kpi-secundarias {
+  margin-bottom: 0;
+}
+
+@media (max-width: 700px) {
+  .dashboard-kpi-destacado {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Grid de 6 columnas explicito (no auto-fit): con auto-fit + spans mixtos
+   (3 tarjetas normales + 2 anchas) el numero de columnas que caben varia
+   segun el ancho de pantalla y casi nunca es multiplo exacto de los spans,
+   dejando celdas vacias. Con columnas fijas + span definido en cada
+   breakpoint, cada fila siempre suma exactamente el total de columnas: 3
+   normales (span 2) = 6 en fila 1, 2 anchas (span 3) = 6 en fila 2. */
 .dashboard-charts {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(6, 1fr);
   gap: var(--np-space-md);
   align-items: stretch;
 }
 
+.dashboard-chart-card--normal {
+  grid-column: span 2;
+}
+
+.dashboard-chart-footnote {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--np-text-muted);
+}
+
+/* Nombres de proveedor / serie de 30 dias necesitan mas espacio horizontal
+   que el resto de graficos (donut/radial), asi que ocupan mas columnas. */
+.dashboard-chart-card--ancho {
+  grid-column: span 3;
+}
+
+/* Tablet: 2 columnas, toda tarjeta pasa a span 2 (ancho completo, 1 por
+   fila) -- sigue sin dejar celdas vacias, solo cambia de 2 filas a 5. */
 @media (max-width: 900px) {
   .dashboard-charts {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-chart-card--normal,
+  .dashboard-chart-card--ancho {
+    grid-column: span 2;
+  }
+}
+
+/* Movil: 1 columna, todo se apila. */
+@media (max-width: 700px) {
+  .dashboard-charts {
     grid-template-columns: 1fr;
+  }
+  .dashboard-chart-card--normal,
+  .dashboard-chart-card--ancho {
+    grid-column: span 1;
   }
 }
 
