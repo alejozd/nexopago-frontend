@@ -45,15 +45,25 @@ export function Topbar() {
         <h1>{resolveTitle(location.pathname)}</h1>
       </div>
       <div className="app-topbar-right">
-        <span className="app-topbar-user">
-          {usuario ? `${usuario.nombre} ${usuario.apellido}` : ''}
-        </span>
-        <Avatar
-          icon="pi pi-user"
-          shape="circle"
+        <button
+          type="button"
+          className="app-topbar-user-button"
           onClick={(event) => menuRef.current?.toggle(event)}
-          style={{ cursor: 'pointer' }}
-        />
+          aria-label="Menú de usuario"
+        >
+          <span className="app-topbar-user-text">
+            <span className="app-topbar-user-nombre">
+              {usuario ? `${usuario.nombre} ${usuario.apellido}` : ''}
+            </span>
+            {usuario && (
+              <span className="app-topbar-user-rol">
+                {usuario.roles.length > 0 ? usuario.roles.join(', ') : 'Sin rol asignado'}
+              </span>
+            )}
+          </span>
+          <Avatar icon="pi pi-user" shape="circle" className="app-topbar-avatar" />
+          <span className="pi pi-chevron-down app-topbar-chevron" />
+        </button>
         <Menu model={userMenuItems} popup ref={menuRef} />
       </div>
     </header>

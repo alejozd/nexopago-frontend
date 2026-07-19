@@ -128,10 +128,52 @@
   gap: 0.85rem;
 }
 
-.app-topbar-user {
+/* Antes el avatar era lo unico clickeable (sin ninguna señal visual de
+   que abria un menu). Ahora todo el bloque usuario es un boton real, con
+   hover, flecha y rol visible -- el mismo Menu popup se sigue abriendo
+   desde este boton. */
+.app-topbar-user-button {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--np-radius-control);
+  transition: background-color 0.2s ease;
+}
+
+.app-topbar-user-button:hover {
+  background: var(--np-content-bg);
+}
+
+.app-topbar-user-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.25;
+}
+
+.app-topbar-user-nombre {
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--np-text-title);
+}
+
+.app-topbar-user-rol {
+  font-size: 0.72rem;
+  color: var(--np-text-muted);
+}
+
+.app-topbar-avatar.p-avatar {
+  background: var(--np-primary);
+  color: #fff;
+}
+
+.app-topbar-chevron {
+  font-size: 0.7rem;
+  color: var(--np-text-muted);
 }
 
 .app-content {
