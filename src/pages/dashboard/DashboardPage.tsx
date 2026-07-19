@@ -257,35 +257,35 @@ export function DashboardPage() {
         <p>{dayjs().locale('es').format('dddd, D [de] MMMM [de] YYYY')}</p>
       </div>
 
-      <div className="kpi-row">
-        <KpiCard
-          icon="pi pi-shopping-cart"
-          label="Órdenes Pendientes"
-          value={String(dashboard.ordenesPendientes)}
-          accent="warning"
-          size="compact"
-        />
-        <KpiCard
-          icon="pi pi-receipt"
-          label="Recibos Creados"
-          value={String(dashboard.recibosCreados)}
-          accent="primary"
-          size="compact"
-        />
-        <KpiCard
-          icon="pi pi-clock"
-          label="Pagos Pendientes"
-          value={String(dashboard.pagosPendientes)}
-          accent="danger"
-          size="compact"
-        />
+      <div className="dashboard-kpi-destacado">
         <KpiCard
           icon="pi pi-wallet"
           label="Valor Total de Cartera"
           value={formatCurrency(dashboard.valorTotalCartera)}
           accent="success"
-          size="compact"
+          destacado
+          subtitulo={`Repartido en ${dashboard.pagosPendientes} orden${dashboard.pagosPendientes === 1 ? '' : 'es'} pendiente${dashboard.pagosPendientes === 1 ? '' : 's'}`}
         />
+        <div className="kpi-row dashboard-kpi-secundarias">
+          <KpiCard
+            icon="pi pi-shopping-cart"
+            label="Órdenes Pendientes"
+            value={String(dashboard.ordenesPendientes)}
+            accent="warning"
+          />
+          <KpiCard
+            icon="pi pi-receipt"
+            label="Recibos Creados"
+            value={String(dashboard.recibosCreados)}
+            accent="primary"
+          />
+          <KpiCard
+            icon="pi pi-clock"
+            label="Pagos Pendientes"
+            value={String(dashboard.pagosPendientes)}
+            accent="danger"
+          />
+        </div>
       </div>
 
       <div className="dashboard-charts">
