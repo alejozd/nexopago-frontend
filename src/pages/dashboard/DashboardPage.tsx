@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
-import type { Chart as ChartJS, ChartOptions, Plugin, ScriptableContext } from 'chart.js';
-import { Chart } from 'primereact/chart';
+import Chart from 'react-apexcharts';
+import type { ApexOptions } from 'apexcharts';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
@@ -22,36 +22,31 @@ function saludoDelDia(): string {
   return 'Buenas noches';
 }
 
-// Variar solo luminosidad/saturacion dentro de un mismo matiz (como en el
-// primer intento) se percibe como "el mismo color" a simple vista: el ojo
-// distingue matices distintos mucho mejor que tonos claros/oscuros del mismo
-// color. Por eso el matiz rota entre verde y azul (150-210), pasando por el
-// --np-teal (172) del sistema de diseño, y se evitan naranja/rojo/amarillo
-// porque ya tienen significado semantico (warning/danger) en otras pantallas.
-function colorMesHsl(indice: number, total: number, ajusteLuminosidad = 0): string {
+// Variar solo luminosidad/saturacion dentro de un mismo matiz se percibe como
+// "el mismo color" a simple vista: el ojo distingue matices distintos mucho
+// mejor que tonos claros/oscuros del mismo color. Por eso el matiz rota entre
+// verde y azul (150-210), pasando por el --np-teal (172) del sistema de
+// diseño, y se evitan naranja/rojo/amarillo porque ya tienen significado
+// semantico (warning/danger) en otras pantallas.
+// ApexCharts usa hexToRgb/shadeColor internamente para sombreados y
+// gradientes (no interpreta hsl() en esos calculos), asi que el color se
+// resuelve a hex aqui en vez de devolver el string hsl() directamente.
+function hslToHex(matiz: number, saturacion: number, luminosidad: number): string {
+  const s = saturacion / 100;
+  const l = luminosidad / 100;
+  const k = (n: number) => (n + matiz / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  const aHex = (x: number) => Math.round(255 * x).toString(16).padStart(2, '0');
+  return `#${aHex(f(0))}${aHex(f(8))}${aHex(f(4))}`;
+}
+
+function colorMesHex(indice: number, total: number, ajusteLuminosidad = 0): string {
   const t = total <= 1 ? 0 : indice / (total - 1);
   const matiz = 150 + t * 60;
   const luminosidad = Math.min(90, 45 + ajusteLuminosidad);
-  return `hsl(${matiz} 55% ${luminosidad}%)`;
+  return hslToHex(matiz, 55, luminosidad);
 }
-
-// Chart.js no soporta 3D; este plugin simula profundidad con una sombra
-// proyectada detras de cada barra (mismo tono que --np-ink) en vez de
-// distorsionar la perspectiva, que es lo que hace ilegibles a los graficos 3D reales.
-const sombraBarrasPlugin: Plugin<'bar'> = {
-  id: 'npSombraBarras',
-  beforeDatasetsDraw(chart: ChartJS) {
-    const { ctx } = chart;
-    ctx.save();
-    ctx.shadowColor = 'rgba(22, 36, 31, 0.25)';
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 4;
-  },
-  afterDatasetsDraw(chart: ChartJS) {
-    chart.ctx.restore();
-  },
-};
 
 export function DashboardPage() {
   const usuario = useAuthStore((state) => state.usuario);
@@ -67,87 +62,189 @@ export function DashboardPage() {
   }
 
   const totalMeses = dashboard.pagosMensuales.length;
+  const paletteMeses = dashboard.pagosMensuales.map((_, i) => colorMesHex(i, totalMeses));
+  const paletteMesesClara = dashboard.pagosMensuales.map((_, i) => colorMesHex(i, totalMeses, 22));
 
-  const barData = {
-    labels: dashboard.pagosMensuales.map((p) => formatMonthPeriod(p.periodo)),
-    datasets: [
-      {
-        label: 'Pagos mensuales',
-        data: dashboard.pagosMensuales.map((p) => p.total),
-        // Chart.js dibuja en un <canvas>, que no resuelve custom properties
-        // CSS (var(--np-*)) porque no forma parte del DOM/CSSOM — los colores
-        // se calculan en JS, dentro de la misma familia --np-teal del sistema
-        // de diseño (dato secundario, no el acento de sello exclusivo).
-        backgroundColor: (context: ScriptableContext<'bar'>) => {
-          const { chart, dataIndex } = context;
-          const base = colorMesHsl(dataIndex, totalMeses);
-          if (!chart.chartArea) return base;
-          const { top, bottom } = chart.chartArea;
-          const degradado = chart.ctx.createLinearGradient(0, top, 0, bottom);
-          degradado.addColorStop(0, colorMesHsl(dataIndex, totalMeses, 22));
-          degradado.addColorStop(1, base);
-          return degradado;
-        },
-        borderRadius: 6,
-        borderSkipped: false,
-      },
-    ],
-  };
+  const barSeries = [
+    {
+      name: 'Pagos mensuales',
+      data: dashboard.pagosMensuales.map((p) => p.total),
+    },
+  ];
 
-  const pieData = {
-    labels: dashboard.ordenesPorEstado.map((o) => o.estado),
-    datasets: [
-      {
-        data: dashboard.ordenesPorEstado.map((o) => o.cantidad),
-        // Mismo motivo que arriba: literales en sincronia manual con los
-        // tokens semanticos (--np-teal/--np-warning/--np-success/--np-danger/
-        // --np-neutral). Se evita --np-sello a proposito: el sistema de
-        // diseño lo reserva como EL unico acento, no para series de charts.
-        backgroundColor: ['#0E6B62', '#A8660F', '#1B7A4D', '#B3261E', '#46596E'],
-      },
-    ],
-  };
-
-  // Con la mayoria de los meses en 0 y uno solo con datos, dejar que Chart.js
+  // Con la mayoria de los meses en 0 y uno solo con datos, dejar que ApexCharts
   // auto-escale el eje Y a su "numero redondo" habitual (ej. 800k cuando el
   // maximo real es 675k) deja un margen vacio notorio arriba de la barra. Se
   // fija un maximo ajustado al dato real (+15%) en vez de al numero redondo.
   const maxPagoMensual = Math.max(0, ...dashboard.pagosMensuales.map((p) => p.total));
 
-  // Cascada: cada barra entra con un pequeño retraso respecto a la anterior
-  // en vez de todas a la vez. La bandera "yaAnimo" evita que ese retraso se
-  // repita en updates posteriores (hover, resize), solo aplica al dibujo inicial.
-  let yaAnimo = false;
-  const barOptions: ChartOptions<'bar'> = {
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    animation: {
-      duration: 700,
-      easing: 'easeOutQuart',
-      delay: (context: ScriptableContext<'bar'>) => {
-        if (context.type === 'data' && context.mode === 'default' && !yaAnimo) {
-          return context.dataIndex * 90;
-        }
-        return 0;
+  const barOptions: ApexOptions = {
+    chart: {
+      type: 'bar',
+      toolbar: { show: false },
+      // Cascada: cada barra entra con un pequeño retraso respecto a la
+      // anterior en vez de todas a la vez (animateGradually.delay).
+      animations: {
+        enabled: true,
+        easing: 'easeout',
+        speed: 700,
+        animateGradually: { enabled: true, delay: 90 },
+        dynamicAnimation: { enabled: true, speed: 350 },
       },
-      onComplete: () => {
-        yaAnimo = true;
+      dropShadow: {
+        enabled: true,
+        top: 4,
+        blur: 6,
+        color: '#16241f',
+        opacity: 0.25,
       },
     },
-    scales: {
-      y: {
-        beginAtZero: true,
-        max: maxPagoMensual > 0 ? maxPagoMensual * 1.15 : undefined,
-        ticks: {
-          callback: (value: number | string) => formatCurrencyCompact(Number(value)),
+    plotOptions: {
+      bar: {
+        distributed: true,
+        borderRadius: 6,
+        columnWidth: '55%',
+      },
+    },
+    colors: paletteMeses,
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shade: 'light',
+        type: 'vertical',
+        shadeIntensity: 0.4,
+        gradientToColors: paletteMesesClara,
+        opacityFrom: 1,
+        opacityTo: 1,
+        stops: [0, 100],
+      },
+    },
+    dataLabels: { enabled: false },
+    legend: { show: false },
+    xaxis: { categories: dashboard.pagosMensuales.map((p) => formatMonthPeriod(p.periodo)) },
+    yaxis: {
+      max: maxPagoMensual > 0 ? maxPagoMensual * 1.15 : undefined,
+      labels: { formatter: (value: number) => formatCurrencyCompact(value) },
+    },
+    tooltip: { y: { formatter: (value: number) => formatCurrency(value) } },
+  };
+
+  const pieSeries = dashboard.ordenesPorEstado.map((o) => o.cantidad);
+
+  const pieOptions: ApexOptions = {
+    chart: { type: 'donut' },
+    labels: dashboard.ordenesPorEstado.map((o) => o.estado),
+    // Literales en sincronia manual con los tokens semanticos (--np-teal/
+    // --np-warning/--np-success/--np-danger/--np-neutral). Se evita
+    // --np-sello a proposito: el sistema de diseño lo reserva como EL unico
+    // acento, no para series de charts.
+    colors: ['#0E6B62', '#A8660F', '#1B7A4D', '#B3261E', '#46596E'],
+    legend: { position: 'bottom' },
+    dataLabels: { enabled: true },
+    stroke: { width: 0 },
+  };
+
+  // pagosPendientes (conteo de ordenes ACTIVAS con saldo > 0) y valorTotalCartera
+  // (suma en $ del saldo) no son comparables como porcentaje entre si -- uno es
+  // conteo y el otro es dinero. El gauge usa en cambio dos conteos que SI son
+  // comparables: recibos creados este mes vs ordenes aun en flujo pendiente
+  // (BORRADOR/PENDIENTE/PARCIALMENTE_RECIBIDA), como "tasa de resolucion" del
+  // mes en curso.
+  const totalFlujoMes = dashboard.recibosCreados + dashboard.ordenesPendientes;
+  const porcentajeResuelto =
+    totalFlujoMes > 0 ? Math.round((dashboard.recibosCreados / totalFlujoMes) * 100) : 0;
+  const radialSeries = [porcentajeResuelto];
+
+  const radialOptions: ApexOptions = {
+    chart: { type: 'radialBar' },
+    // ApexCharts fija "fill" como atributo SVG (no como propiedad CSS por
+    // style), asi que var(--np-*) no se resuelve aqui: mismo motivo que en
+    // los otros dos graficos, el color va literal en hex.
+    colors: ['#0E6B62'],
+    plotOptions: {
+      radialBar: {
+        hollow: { size: '58%' },
+        track: { background: '#E4E9E7' },
+        dataLabels: {
+          name: { fontSize: '0.8rem', color: '#46596E', offsetY: 24 },
+          value: {
+            fontSize: '1.9rem',
+            fontWeight: 700,
+            color: '#16241F',
+            offsetY: -8,
+            formatter: (val: number) => `${val}%`,
+          },
         },
       },
     },
+    labels: ['Resuelto este mes'],
   };
 
-  const pieOptions = {
-    maintainAspectRatio: false,
-    plugins: { legend: { position: 'bottom' as const } },
+  // Top 5 proveedores con mayor saldo pendiente (ya viene ordenado desc y
+  // limitado a 5 desde el backend, ver NexoPago.Services.Dashboard.pas).
+  const proveedoresOrdenados = [...dashboard.topProveedoresCartera].reverse();
+  const paletteProveedores = proveedoresOrdenados.map((_, i) =>
+    colorMesHex(i, proveedoresOrdenados.length),
+  );
+  const proveedorSeries = [
+    {
+      name: 'Saldo pendiente',
+      data: proveedoresOrdenados.map((p) => p.saldoPendienteTotal),
+    },
+  ];
+
+  const proveedorOptions: ApexOptions = {
+    chart: { type: 'bar', toolbar: { show: false } },
+    plotOptions: {
+      bar: {
+        horizontal: true,
+        borderRadius: 4,
+        distributed: true,
+        barHeight: '55%',
+      },
+    },
+    // Mismo mecanismo de colorMesHex que Pagos Mensuales: rotacion de matiz
+    // sutil (verde-azul), no un color por barra sin relacion entre si.
+    colors: paletteProveedores,
+    dataLabels: {
+      enabled: true,
+      formatter: (val: number) => formatCurrencyCompact(val),
+      style: { colors: ['#ffffff'] },
+    },
+    xaxis: {
+      categories: proveedoresOrdenados.map((p) => p.proveedorNombre),
+      labels: { formatter: (value: string) => formatCurrencyCompact(Number(value)) },
+    },
+    legend: { show: false },
+    tooltip: { y: { formatter: (value: number) => formatCurrency(value) } },
+  };
+
+  // Tendencia de entradas de mercancia (ultimas 8 semanas, ver
+  // NexoPago.Services.Dashboard.pas). Barras en vez de area: son 8 puntos
+  // semanales, categorias discretas a comparar entre si, no una serie
+  // continua densa como para justificar una linea/area.
+  const entradaSeries = [
+    {
+      name: 'Entradas',
+      data: dashboard.entradasRecientes.map((e) => e.cantidad),
+    },
+  ];
+
+  const entradaOptions: ApexOptions = {
+    chart: { type: 'bar', toolbar: { show: false } },
+    colors: ['#0E6B62'],
+    plotOptions: { bar: { borderRadius: 4, columnWidth: '55%' } },
+    dataLabels: { enabled: false },
+    xaxis: {
+      categories: dashboard.entradasRecientes.map((e) => dayjs(e.semanaInicio).locale('es').format('DD MMM')),
+    },
+    yaxis: { labels: { formatter: (value: number) => Math.round(value).toString() } },
+    tooltip: {
+      x: {
+        formatter: (_val: number, opts) =>
+          `Semana del ${dayjs(dashboard.entradasRecientes[opts.dataPointIndex].semanaInicio).locale('es').format('DD/MM/YYYY')}`,
+      },
+    },
   };
 
   return (
@@ -192,14 +289,32 @@ export function DashboardPage() {
       </div>
 
       <div className="dashboard-charts">
-        <Card title="Pagos mensuales">
+        <Card title="Pagos mensuales" className="dashboard-chart-card--normal">
           <div className="dashboard-chart-wrap">
-            <Chart type="bar" data={barData} options={barOptions} plugins={[sombraBarrasPlugin]} />
+            <Chart type="bar" series={barSeries} options={barOptions} width="100%" height={300} />
           </div>
         </Card>
-        <Card title="Órdenes por Estado">
+        <Card title="Órdenes por Estado" className="dashboard-chart-card--normal">
           <div className="dashboard-chart-wrap dashboard-chart-wrap-pie">
-            <Chart type="pie" data={pieData} options={pieOptions} />
+            <Chart type="donut" series={pieSeries} options={pieOptions} width="100%" height={300} />
+          </div>
+        </Card>
+        <Card title="Recibos vs. Pendientes (mes)" className="dashboard-chart-card--normal">
+          <div className="dashboard-chart-wrap dashboard-chart-wrap-pie">
+            <Chart type="radialBar" series={radialSeries} options={radialOptions} width="100%" height={300} />
+          </div>
+          <p className="dashboard-chart-footnote">
+            {dashboard.recibosCreados} recibos creados / {dashboard.ordenesPendientes} órdenes aún pendientes
+          </p>
+        </Card>
+        <Card title="Top 5 Proveedores por Saldo Pendiente" className="dashboard-chart-card--ancho">
+          <div className="dashboard-chart-wrap">
+            <Chart type="bar" series={proveedorSeries} options={proveedorOptions} width="100%" height={300} />
+          </div>
+        </Card>
+        <Card title="Entradas de Mercancía (últimas 8 semanas)" className="dashboard-chart-card--ancho">
+          <div className="dashboard-chart-wrap">
+            <Chart type="bar" series={entradaSeries} options={entradaOptions} width="100%" height={300} />
           </div>
         </Card>
       </div>
