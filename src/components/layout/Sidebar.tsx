@@ -15,7 +15,12 @@ export function Sidebar() {
     <aside className={`app-sidebar${collapsed ? ' collapsed' : ''}`}>
       <div className="app-sidebar-brand">
         <span className="pi pi-bolt" />
-        {!collapsed && <span>NexoPago</span>}
+        {!collapsed && (
+          <div className="app-sidebar-brand-text">
+            <span className="app-sidebar-brand-name">NexoPago</span>
+            <span className="app-sidebar-brand-version">v{__APP_VERSION__}</span>
+          </div>
+        )}
       </div>
       <nav>
         <ul>
