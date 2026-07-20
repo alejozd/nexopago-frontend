@@ -12,6 +12,7 @@ import { EntradasListPage } from '../pages/entradas/EntradasListPage';
 import { UsuariosPage } from '../pages/usuarios/UsuariosPage';
 import { PermisosPage } from '../pages/permisos/PermisosPage';
 import { ReportesCarteraPage } from '../pages/reportes/ReportesCarteraPage';
+import { EmpresaActivaPage } from '../pages/empresaActiva/EmpresaActivaPage';
 import { ProtectedRoute } from './ProtectedRoute';
 
 export function AppRouter() {
@@ -33,6 +34,7 @@ export function AppRouter() {
           <Route path="/usuarios" element={<UsuariosPage />} />
           <Route path="/permisos" element={<PermisosPage />} />
           <Route path="/reportes/cartera" element={<ReportesCarteraPage />} />
+          <Route path="/configuracion/empresa" element={<EmpresaActivaPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

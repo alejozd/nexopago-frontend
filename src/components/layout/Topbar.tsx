@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Menu } from 'primereact/menu';
 import type { MenuItem } from 'primereact/menuitem';
@@ -6,8 +6,7 @@ import { Avatar } from 'primereact/avatar';
 import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
 import { menuConfig } from './menuConfig';
-import { getEmpresaActual } from '../../services/empresa.service';
-import type { EmpresaActual } from '../../types/empresa.types';
+import { useEmpresaActualQuery } from '../../hooks/empresa/useEmpresaActualQuery';
 
 function resolveTitle(pathname: string): string {
   const match = menuConfig.find((item) => pathname.startsWith(item.path));
@@ -21,13 +20,7 @@ export function Topbar() {
   const clearSession = useAuthStore((state) => state.clearSession);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
   const menuRef = useRef<Menu>(null);
-  const [empresa, setEmpresa] = useState<EmpresaActual | null>(null);
-
-  useEffect(() => {
-    getEmpresaActual()
-      .then(setEmpresa)
-      .catch(() => setEmpresa(null));
-  }, []);
+  const { data: empresa } = useEmpresaActualQuery();
 
   const userMenuItems: MenuItem[] = [
     {
@@ -53,7 +46,7 @@ export function Topbar() {
         </button>
         <h1>{resolveTitle(location.pathname)}</h1>
         {empresa && (
-          <span className="app-topbar-empresa" title="Empresa Helisa conectada">
+          <span className="app-topbar-empresa" title="Empresa activa conectada">
             <span className="pi pi-building" />
             {empresa.nombre}
           </span>

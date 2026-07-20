@@ -16,4 +16,5 @@ export const menuConfig: MenuItemConfig[] = [
   { label: 'Usuarios', icon: 'pi pi-users', path: '/usuarios' },
   { label: 'Permisos', icon: 'pi pi-lock', path: '/permisos' },
   { label: 'Reportes de Cartera', icon: 'pi pi-chart-bar', path: '/reportes/cartera' },
+  { label: 'Configuración', icon: 'pi pi-cog', path: '/configuracion/empresa' },
 ];
