@@ -34,7 +34,7 @@ const PRODUCTO_SEARCH_DEBOUNCE_MS = 300;
 const headerSchema = z.object({
   proveedorId: z.number({ error: 'El proveedor es obligatorio' }).min(1, 'El proveedor es obligatorio'),
   fechaOrden: z.date({ error: 'La fecha es obligatoria' }),
-  numeroPedidoHelisa: z.string().min(1, 'Debe seleccionar un pedido Helisa'),
+  numeroPedidoHelisa: z.string().min(1, 'Debe seleccionar un pedido ERP'),
   observaciones: z.string(),
 });
 
@@ -246,7 +246,7 @@ export function OrdenFormPage() {
   const onSubmit = (values: HeaderFormValues) => {
     if (lineas.some((linea) => linea.producto?.id === 0)) {
       setLineasError(
-        'Hay líneas del pedido Helisa sin producto local encontrado: selecciona el producto correcto o elimina la línea.',
+        'Hay líneas del pedido ERP sin producto local encontrado: selecciona el producto correcto o elimina la línea.',
       );
       return;
     }
@@ -348,7 +348,7 @@ export function OrdenFormPage() {
               {errors.fechaOrden && <small className="p-error">{errors.fechaOrden.message}</small>}
             </div>
             <div className="field">
-              <label htmlFor="numeroPedidoHelisa">N° Pedido Helisa</label>
+              <label htmlFor="numeroPedidoHelisa">N° Pedido ERP</label>
               <div className="orden-form-pedido-helisa">
                 <InputText id="numeroPedidoHelisa" readOnly {...register('numeroPedidoHelisa')} />
                 <Button

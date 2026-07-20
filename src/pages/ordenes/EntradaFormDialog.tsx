@@ -64,7 +64,7 @@ export function EntradaFormDialog({ visible, ordenId, onHide }: EntradaFormDialo
     <Dialog header="Registrar Entrada de Mercancía" visible={visible} onHide={onHide} style={{ width: '26rem' }} modal>
       <form onSubmit={handleSubmit(onSubmit)} className="recibo-form" noValidate>
         <div className="field">
-          <label htmlFor="numeroEntradaHelisa">Número de Entrada Helisa</label>
+          <label htmlFor="numeroEntradaHelisa">Número de Entrada ERP</label>
           <InputText id="numeroEntradaHelisa" autoFocus placeholder="INGR0001" {...register('numeroEntradaHelisa')} />
           {errors.numeroEntradaHelisa && <small className="p-error">{errors.numeroEntradaHelisa.message}</small>}
         </div>

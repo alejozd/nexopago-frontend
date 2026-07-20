@@ -85,7 +85,7 @@ export function ProductosPage() {
         sortOrder={params.sortOrder}
         dataKey="id"
       >
-        <Column field="codigoHelisa" header="Código Helisa" sortable />
+        <Column field="codigoHelisa" header="Código ERP" sortable />
         <Column field="subCodigoHelisa" header="Subcódigo" />
         <Column field="codigoInterno" header="Código Interno" body={(row: Producto) => row.codigoInterno ?? '—'} />
         <Column field="descripcion" header="Descripción" sortable />

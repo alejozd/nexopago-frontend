@@ -73,7 +73,7 @@ export function EntradasListPage() {
         onRowClick={onRowClick}
         rowClassName={() => 'entradas-row-clickable'}
       >
-        <Column field="numeroEntradaHelisa" header="N° Entrada Helisa" sortable />
+        <Column field="numeroEntradaHelisa" header="N° Entrada ERP" sortable />
         <Column
           field="fechaEntrada"
           header="Fecha de Entrada"

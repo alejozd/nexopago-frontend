@@ -56,14 +56,14 @@ export function BuscarPedidoHelisaDialog({ visible, onHide, onConfirm, ordenId }
 
   return (
     <Dialog
-      header="Buscar Pedido Helisa"
+      header="Buscar Pedido ERP"
       visible={visible}
       onHide={handleHide}
       style={{ width: '52rem' }}
       modal
     >
       <p className="buscar-pedido-subtitle">
-        Pedidos de compra registrados en Helisa en los últimos 60 días. Selecciona uno para ver su detalle.
+        Pedidos de compra registrados en el ERP en los últimos 60 días. Selecciona uno para ver su detalle.
       </p>
 
       <div className="buscar-pedido-grid">

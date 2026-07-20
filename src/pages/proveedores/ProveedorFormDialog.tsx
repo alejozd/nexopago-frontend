@@ -109,7 +109,7 @@ export function ProveedorFormDialog({ visible, proveedor, onHide }: ProveedorFor
             {errors.nit && <small className="p-error">{errors.nit.message}</small>}
           </div>
           <div className="field">
-            <label htmlFor="codigoHelisa">Código Helisa</label>
+            <label htmlFor="codigoHelisa">Código ERP</label>
             <InputText id="codigoHelisa" {...register('codigoHelisa')} />
           </div>
           <div className="field">

@@ -9,7 +9,7 @@ export function useSincronizarProductos() {
     onSuccess: (resumen) => {
       queryClient.invalidateQueries({ queryKey: ['productos', 'list'] });
       showSuccessToast(
-        `Sincronización completa: ${resumen.nuevos} nuevos, ${resumen.actualizados} actualizados de ${resumen.totalLeidos} productos leídos de Helisa.`,
+        `Sincronización completa: ${resumen.nuevos} nuevos, ${resumen.actualizados} actualizados de ${resumen.totalLeidos} productos leídos del ERP.`,
       );
     },
   });
