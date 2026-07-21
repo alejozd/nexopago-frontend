@@ -17,5 +17,9 @@ interface StatusTagProps {
 }
 
 export function StatusTag({ status }: StatusTagProps) {
-  return <Tag value={status} severity={SEVERITY_MAP[status] ?? 'info'} />;
+  // Solo cambia lo que se muestra (guion bajo -> espacio, ej.
+  // "PARCIALMENTE_RECIBIDA" -> "PARCIALMENTE RECIBIDA"): mas legible y de
+  // paso permite que el texto envuelva en un contenedor angosto, ya que
+  // "status" (sin espacios) se sigue usando tal cual para el severity map.
+  return <Tag value={status.replace(/_/g, ' ')} severity={SEVERITY_MAP[status] ?? 'info'} />;
 }

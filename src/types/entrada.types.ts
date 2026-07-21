@@ -1,12 +1,17 @@
-// "completa" decide si el backend pasa la orden a RECIBIDA o
-// PARCIALMENTE_RECIBIDA (sin tracking de cantidades, ver
-// NexoPago.Services.EntradasMercancia).
+export interface EntradaLineaCreateDTO {
+  ordenDetalleId: number;
+  cantidadRecibida: number;
+}
+
+// "completa" ya no existe: el backend calcula RECIBIDA/PARCIALMENTE_RECIBIDA
+// comparando el total pedido contra el total real recibido (detalles),
+// ver NexoPago.Services.EntradasMercancia.
 export interface EntradaCreateDTO {
   ordenId: number;
   numeroEntradaHelisa: string;
   fechaEntrada: string;
-  completa: boolean;
   observaciones: string | null;
+  detalles: EntradaLineaCreateDTO[];
 }
 
 // Fila del listado de auditoria GET /api/entradas.

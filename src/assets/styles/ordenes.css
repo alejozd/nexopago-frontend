@@ -4,6 +4,129 @@
   gap: var(--np-space-lg);
 }
 
+/* Dialogo "Registrar Entrada de Mercancia" (EntradaFormDialog). */
+
+/* Fila de encabezado: el campo de N. Entrada ERP no necesita todo el ancho
+   del modal, asi que se deja espacio a la derecha para recordar a que orden
+   pertenece esta entrada (el modal tapa el listado de fondo). */
+.entrada-form-header-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.entrada-form-numero-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.entrada-form-orden-contexto {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  padding-bottom: 0.6rem;
+}
+
+.entrada-form-orden-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--np-text-muted);
+}
+
+.entrada-form-orden-valor {
+  font-weight: 700;
+  color: var(--np-sello-text);
+}
+
+.entrada-form-hint {
+  display: block;
+  color: var(--np-text-muted);
+  font-size: 0.78rem;
+  margin-top: 0.2rem;
+}
+
+.entrada-form-lineas {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-height: 16rem;
+  overflow-y: auto;
+}
+
+.entrada-form-linea {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--np-line);
+  border-radius: var(--np-radius-control);
+}
+
+.entrada-form-linea--completada {
+  background: var(--np-success-bg);
+  border-color: transparent;
+}
+
+.entrada-form-linea-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.entrada-form-linea-nombre {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--np-text-title);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entrada-form-linea-detalle {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.entrada-form-linea-codigo {
+  font-family: var(--np-font-mono);
+  font-size: 0.74rem;
+  color: var(--np-text-muted);
+}
+
+.entrada-form-linea-saldo {
+  font-size: 0.76rem;
+  color: var(--np-text-muted);
+}
+
+.entrada-form-linea--completada .entrada-form-linea-saldo {
+  color: var(--np-success);
+  font-weight: 600;
+}
+
+/* La regla global .recibo-form .p-inputnumber { width: 100%; } (recibos.css)
+   estira este control a todo el ancho disponible; con !important se
+   garantiza el ancho fijo sin importar el orden de carga de esa hoja de
+   estilos compartida. */
+.p-inputnumber.entrada-form-linea-cantidad {
+  width: 5.5rem !important;
+  flex: none;
+}
+
+.entrada-form-linea-cantidad .p-inputnumber-input {
+  width: 100%;
+  text-align: right;
+}
+
 .orden-detalle-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -142,10 +265,42 @@
   text-decoration: line-through;
 }
 
+/* Columnas asimetricas (no auto-fit parejo): Proveedor necesita mas ancho
+   porque un nombre de proveedor suele ser mas largo que una fecha o un
+   estado.
+   align-items:start es la pieza que realmente faltaba: por defecto CSS
+   Grid estira TODAS las celdas de la fila a la altura de la mas alta
+   (align-items:stretch). Como el pill de Estado a veces envuelve a 2
+   lineas, esa altura mayor se contagiaba a Proveedor/Fecha/Valor Total,
+   dejandoles un espacio vacio abajo para igualar. Con align-items:start
+   cada celda mide solo lo que necesita su propio contenido. */
 .orden-header-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: 2fr 1fr 1.1fr 1fr;
   gap: var(--np-space-md);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .orden-header-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Sin min-width:0 un grid item nunca se encoge por debajo del ancho de su
+   contenido, desbordando visualmente sobre la columna vecina. */
+.orden-header-field {
+  min-width: 0;
+}
+
+/* Un poco mas chico que el .p-tag por defecto (0.72rem/0.3rem 0.75rem) para
+   que quepa mejor en la columna; se deja envolver a 2 lineas si hace falta
+   (white-space normal, el default) en vez de nowrap -- un texto que no
+   puede envolver y no cabe se desborda sobre la columna vecina en vez de
+   quedarse dentro de la suya. */
+.orden-header-field .p-tag {
+  font-size: 0.68rem;
+  padding: 0.28rem 0.6rem;
 }
 
 .orden-header-field label {
@@ -164,13 +319,48 @@
   color: var(--np-text-title);
 }
 
+/* Valor Total destacado: es el dato que mas le importa a alguien que abre
+   el detalle de una orden, se lee igual de rapido que el ESTADO. !important
+   porque ".orden-header-field span" (una clase + un elemento) tiene mas
+   especificidad que una sola clase y ganaria por defecto. */
+.orden-header-valor-total {
+  font-size: 1.3rem !important;
+  font-weight: 700 !important;
+  color: var(--np-success) !important;
+}
+
+/* Titulo + subtitulo a la izquierda, acciones (Editar/Registrar
+   Entrada/Anular) a la derecha, ambos en la misma fila -- antes las
+   acciones vivian en su propio renglon debajo de los campos. */
+.orden-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--np-border);
+}
+
+.orden-header-titulo h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--np-text-title);
+}
+
+.orden-header-titulo p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--np-text-muted);
+}
+
 .orden-header-actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
-  margin-top: 1.25rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--np-border);
+  flex-shrink: 0;
 }
 
 .orden-timeline-horizontal-wrap {
