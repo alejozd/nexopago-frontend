@@ -120,6 +120,7 @@ export function ReportesCarteraPage() {
           value={formatCurrency(resumen?.totalPendiente ?? 0)}
           accent="primary"
           size="compact"
+          wrapValue
         />
         <KpiCard
           icon="pi pi-file"
@@ -127,6 +128,7 @@ export function ReportesCarteraPage() {
           value={String(resumen?.cantidadOrdenesConSaldo ?? 0)}
           accent="warning"
           size="compact"
+          wrapValue
         />
         <KpiCard
           icon="pi pi-clock"
@@ -134,6 +136,7 @@ export function ReportesCarteraPage() {
           value={resumen?.ordenMasAntiguaNumero ? `${resumen.ordenMasAntiguaNumero} (${resumen.ordenMasAntiguaDias}d)` : '—'}
           accent="danger"
           size="compact"
+          wrapValue
         />
         <KpiCard
           icon="pi pi-building"
@@ -141,6 +144,7 @@ export function ReportesCarteraPage() {
           value={resumen?.proveedorMayorDeudaNombre ?? '—'}
           accent="success"
           size="compact"
+          wrapValue
         />
       </div>
 

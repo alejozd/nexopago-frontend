@@ -25,4 +25,5 @@ export interface ProveedoresResumen {
   total: number;
   activos: number;
   inactivos: number;
+  creadosUltimoMes: number;
 }

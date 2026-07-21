@@ -257,7 +257,7 @@ export function DashboardPage() {
         <p>{dayjs().locale('es').format('dddd, D [de] MMMM [de] YYYY')}</p>
       </div>
 
-      <div className="dashboard-kpi-destacado">
+      <div className="kpi-hero-row">
         <KpiCard
           icon="pi pi-wallet"
           label="Valor Total de Cartera"
@@ -266,7 +266,7 @@ export function DashboardPage() {
           destacado
           subtitulo={`Repartido en ${dashboard.pagosPendientes} orden${dashboard.pagosPendientes === 1 ? '' : 'es'} pendiente${dashboard.pagosPendientes === 1 ? '' : 's'}`}
         />
-        <div className="kpi-row dashboard-kpi-secundarias">
+        <div className="kpi-row kpi-hero-secundarias">
           <KpiCard
             icon="pi pi-shopping-cart"
             label="Órdenes Pendientes"

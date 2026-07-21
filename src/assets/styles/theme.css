@@ -138,3 +138,27 @@
   gap: var(--np-space-md);
   margin-bottom: var(--np-space-lg);
 }
+
+/* Fila de KPIs con jerarquia: una tarjeta "destacada" (grande, a la
+   izquierda) + el resto en una fila compacta a la derecha. Usada por el
+   Dashboard ("Valor Total de Cartera") y por otras paginas que quieran el
+   mismo patron (ej. Proveedores con "Total Proveedores"). NO reemplaza
+   .kpi-row: paginas con tarjetas todas al mismo nivel (ej. Reportes,
+   Ordenes) siguen usando .kpi-row tal cual. */
+.kpi-hero-row {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 2fr;
+  gap: var(--np-space-md);
+  align-items: stretch;
+  margin-bottom: var(--np-space-lg);
+}
+
+.kpi-hero-secundarias {
+  margin-bottom: 0;
+}
+
+@media (max-width: 700px) {
+  .kpi-hero-row {
+    grid-template-columns: 1fr;
+  }
+}

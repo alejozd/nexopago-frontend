@@ -64,9 +64,23 @@ export function ProveedoresPage() {
   return (
     <div>
       <div className="kpi-row">
-        <KpiCard icon="pi pi-building" label="Total Proveedores" value={String(resumen?.total ?? 0)} accent="primary" size="compact" />
+        <KpiCard
+          icon="pi pi-building"
+          label="Total Proveedores"
+          value={String(resumen?.total ?? 0)}
+          accent="primary"
+          size="compact"
+          destacado
+        />
         <KpiCard icon="pi pi-check-circle" label="Activos" value={String(resumen?.activos ?? 0)} accent="success" size="compact" />
         <KpiCard icon="pi pi-ban" label="Inactivos" value={String(resumen?.inactivos ?? 0)} accent="danger" size="compact" />
+        <KpiCard
+          icon="pi pi-user-plus"
+          label="Nuevos (últ. 30 días)"
+          value={String(resumen?.creadosUltimoMes ?? 0)}
+          accent="warning"
+          size="compact"
+        />
       </div>
 
       <Card title="Proveedores">

@@ -17,19 +17,35 @@ interface KpiCardProps {
    * ya disponibles (ej. "Repartido en 5 ordenes pendientes"), nunca una
    * tendencia inventada sin historico que la respalde. */
   subtitulo?: string;
+  /** Para valores que pueden ser texto largo (nombre de proveedor, numero de
+   * orden) en vez de una cifra corta: reduce la fuente y permite hasta 2
+   * renglones (con ellipsis como ultimo recurso) en lugar de truncar a una
+   * sola linea. Aplicar a las 4 tarjetas de la fila por igual para que
+   * todas reserven la misma altura, incluso las que sí caben en 1 linea. */
+  wrapValue?: boolean;
 }
 
-export function KpiCard({ icon, label, value, accent, size = 'default', destacado = false, subtitulo }: KpiCardProps) {
+export function KpiCard({
+  icon,
+  label,
+  value,
+  accent,
+  size = 'default',
+  destacado = false,
+  subtitulo,
+  wrapValue = false,
+}: KpiCardProps) {
   const sizeClass = size === 'compact' ? ' kpi-card-wrapper--compact' : '';
   const destacadoClass = destacado ? ' kpi-card-wrapper--destacado' : '';
+  const wrapClass = wrapValue ? ' kpi-card-wrapper--wrap-value' : '';
   return (
-    <Card className={`kpi-card-wrapper kpi-accent-${accent}${sizeClass}${destacadoClass}`}>
+    <Card className={`kpi-card-wrapper kpi-accent-${accent}${sizeClass}${destacadoClass}${wrapClass}`}>
       <div className="kpi-card">
         <span className={`kpi-icon kpi-icon-${accent}`}>
           <i className={icon} />
         </span>
-        <div>
-          <div className="kpi-value">{value}</div>
+        <div className="kpi-text">
+          <div className="kpi-value" title={value}>{value}</div>
           <div className="kpi-label">{label}</div>
           {subtitulo && <div className="kpi-subtitulo">{subtitulo}</div>}
         </div>
