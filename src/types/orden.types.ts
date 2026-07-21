@@ -37,7 +37,6 @@ export interface OrdenDetalle {
   proveedorNombre: string;
   numeroPedidoHelisa: string | null;
   fechaPedidoHelisa: string | null;
-  totalPedidoHelisa: number | null;
   observaciones: string | null;
   proyecto: string | null;
   solicitud: string | null;
@@ -62,7 +61,6 @@ export interface OrdenCreateDTO {
   fechaOrden: string;
   numeroPedidoHelisa: string | null;
   fechaPedidoHelisa: string | null;
-  totalPedidoHelisa: number | null;
   observaciones: string | null;
   proyecto: string | null;
   solicitud: string | null;
