@@ -310,7 +310,26 @@
   margin-top: 0.15rem;
 }
 
-.orden-detalle-total-cell {
+/* Total de la orden, separado de la grilla de lineas (antes era la ultima
+   fila de la tabla, se confundia con los datos de producto). */
+.orden-detalle-total-resumen {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--np-line);
+}
+
+.orden-detalle-total-label {
+  font-weight: 600;
+  color: var(--np-text-body);
+}
+
+.orden-detalle-total-valor {
+  font-family: var(--np-font-mono);
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--np-text-title);
 }

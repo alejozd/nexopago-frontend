@@ -21,6 +21,7 @@ export interface OrdenLinea {
   id: number;
   productoId: number;
   productoDescripcion: string;
+  productoCodigoInterno: string | null;
   cantidad: number;
   precioUnitario: number;
   subtotal: number;

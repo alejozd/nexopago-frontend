@@ -276,28 +276,39 @@ export function OrdenDetallePage() {
 
           <Card title="Detalle de la Orden">
             <DataTable value={orden.detalles} stripedRows dataKey="id" size="small">
-              <Column field="productoDescripcion" header="Producto" footer="Total" />
+              <Column
+                field="productoCodigoInterno"
+                header="Código"
+                body={(row: OrdenLinea) => row.productoCodigoInterno ?? '—'}
+              />
+              <Column field="productoDescripcion" header="Producto" />
               <Column
                 field="cantidad"
                 header="Cantidad"
+                alignHeader="right"
                 bodyClassName="text-right"
                 body={(row: OrdenLinea) => row.cantidad}
               />
               <Column
                 field="precioUnitario"
                 header="Precio Unitario"
+                alignHeader="right"
                 bodyClassName="text-right"
                 body={(row: OrdenLinea) => formatCurrency(row.precioUnitario)}
               />
               <Column
                 field="subtotal"
                 header="Subtotal"
-                bodyClassName="text-right orden-detalle-total-cell"
-                footerClassName="text-right orden-detalle-total-cell"
-                footer={formatCurrency(orden.valorTotal)}
+                alignHeader="right"
+                bodyClassName="text-right"
                 body={(row: OrdenLinea) => formatCurrency(row.subtotal)}
               />
             </DataTable>
+
+            <div className="orden-detalle-total-resumen">
+              <span className="orden-detalle-total-label">Total de la orden</span>
+              <span className="orden-detalle-total-valor">{formatCurrency(orden.valorTotal)}</span>
+            </div>
           </Card>
 
           <Card title="Trazabilidad">
