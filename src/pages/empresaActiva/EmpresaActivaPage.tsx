@@ -93,33 +93,33 @@ export function EmpresaActivaPage() {
           />
         )}
 
-        <div className="empresa-activa-selector">
-          <label
-            htmlFor="empresaErp"
-            style={{ display: 'block', fontWeight: 600, fontSize: '0.82rem', marginBottom: '0.35rem' }}
-          >
-            Empresa
-          </label>
-          <Dropdown
-            id="empresaErp"
-            value={codigoSeleccionado}
-            options={empresasDisponibles ?? []}
-            optionLabel="nombre"
-            optionValue="codigo"
-            itemTemplate={(option) => `${option.codigo} - ${option.nombre}`}
-            valueTemplate={(option) =>
-              option ? `${option.codigo} - ${option.nombre}` : 'Selecciona una empresa'
-            }
-            placeholder="Selecciona una empresa"
-            loading={isLoadingDisponibles}
-            filter
-            filterBy="codigo,nombre"
-            style={{ width: '100%', maxWidth: '28rem' }}
-            onChange={(e) => setCodigoSeleccionado(e.value)}
-          />
-        </div>
+        <div className="empresa-activa-selector-row">
+          <div className="empresa-activa-selector">
+            <label
+              htmlFor="empresaErp"
+              style={{ display: 'block', fontWeight: 600, fontSize: '0.82rem', marginBottom: '0.35rem' }}
+            >
+              Empresa
+            </label>
+            <Dropdown
+              id="empresaErp"
+              value={codigoSeleccionado}
+              options={empresasDisponibles ?? []}
+              optionLabel="nombre"
+              optionValue="codigo"
+              itemTemplate={(option) => `${option.codigo} - ${option.nombre}`}
+              valueTemplate={(option) =>
+                option ? `${option.codigo} - ${option.nombre}` : 'Selecciona una empresa'
+              }
+              placeholder="Selecciona una empresa"
+              loading={isLoadingDisponibles}
+              filter
+              filterBy="codigo,nombre"
+              style={{ width: '100%' }}
+              onChange={(e) => setCodigoSeleccionado(e.value)}
+            />
+          </div>
 
-        <div className="page-header-actions">
           <Button
             label="Cambiar empresa activa"
             icon="pi pi-sync"

@@ -4,6 +4,19 @@
   gap: 0.85rem;
 }
 
+/* Dropdown + boton en una sola fila, alineados por abajo (el label solo
+   esta encima del dropdown, no del boton) -- antes el boton quedaba en su
+   propio renglon, empujado a la esquina inferior derecha de la tarjeta,
+   dejando mucho espacio vacio entre el y el dropdown. */
+.empresa-activa-selector-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .empresa-activa-selector {
-  margin-bottom: 1rem;
+  flex: 1;
+  min-width: 220px;
+  max-width: 38rem;
 }
