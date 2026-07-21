@@ -87,6 +87,8 @@ export function OrdenesListPage() {
           body={(row: OrdenListItem) => formatDate(row.fechaOrden)}
         />
         <Column field="proveedorNombre" header="Proveedor" sortable />
+        <Column field="proyecto" header="Proyecto" sortable />
+        <Column field="solicitud" header="Solicitud" sortable />
         <Column
           field="estado"
           header="Estado"

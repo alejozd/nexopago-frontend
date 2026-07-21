@@ -36,6 +36,8 @@ const headerSchema = z.object({
   fechaOrden: z.date({ error: 'La fecha es obligatoria' }),
   numeroPedidoHelisa: z.string().min(1, 'Debe seleccionar un pedido ERP'),
   observaciones: z.string(),
+  proyecto: z.string().min(1, 'El proyecto es obligatorio').max(200, 'Máximo 200 caracteres'),
+  solicitud: z.string().min(1, 'La solicitud es obligatoria').max(50, 'Máximo 50 caracteres'),
 });
 
 type HeaderFormValues = z.infer<typeof headerSchema>;
@@ -132,6 +134,8 @@ export function OrdenFormPage() {
       fechaOrden: new Date(),
       numeroPedidoHelisa: '',
       observaciones: '',
+      proyecto: '',
+      solicitud: '',
     },
   });
 
@@ -142,6 +146,8 @@ export function OrdenFormPage() {
         fechaOrden: dayjs(orden.fechaOrden).toDate(),
         numeroPedidoHelisa: orden.numeroPedidoHelisa ?? '',
         observaciones: orden.observaciones ?? '',
+        proyecto: orden.proyecto ?? '',
+        solicitud: orden.solicitud ?? '',
       });
       setLineas(
         orden.detalles.map((linea) => ({
@@ -277,6 +283,8 @@ export function OrdenFormPage() {
       fechaPedidoHelisa: null,
       totalPedidoHelisa: null,
       observaciones: values.observaciones.trim() || null,
+      proyecto: values.proyecto.trim(),
+      solicitud: values.solicitud.trim(),
       detalles,
     };
 
@@ -360,6 +368,16 @@ export function OrdenFormPage() {
                 />
               </div>
               {errors.numeroPedidoHelisa && <small className="p-error">{errors.numeroPedidoHelisa.message}</small>}
+            </div>
+            <div className="field">
+              <label htmlFor="proyecto">Proyecto</label>
+              <InputText id="proyecto" {...register('proyecto')} />
+              {errors.proyecto && <small className="p-error">{errors.proyecto.message}</small>}
+            </div>
+            <div className="field">
+              <label htmlFor="solicitud">Solicitud</label>
+              <InputText id="solicitud" {...register('solicitud')} />
+              {errors.solicitud && <small className="p-error">{errors.solicitud.message}</small>}
             </div>
           </div>
 
