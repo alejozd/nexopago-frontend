@@ -372,7 +372,13 @@ export function OrdenFormPage() {
         </Card>
 
         <Card title="Líneas de Detalle" style={{ marginTop: '1.5rem' }}>
-          <DataTable value={lineas} dataKey={undefined} size="small" loading={isResolvingPedido}>
+          <DataTable
+            value={lineas}
+            dataKey={undefined}
+            size="small"
+            loading={isResolvingPedido}
+            className="orden-form-lineas-table"
+          >
             <Column
               header="Producto"
               body={(row: LineaForm, options: ColumnBodyOptions) => (

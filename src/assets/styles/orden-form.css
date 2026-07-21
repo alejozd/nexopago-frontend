@@ -31,6 +31,33 @@
   width: 100%;
 }
 
+/* El Dropdown de PrimeReact no comparte la altura de .p-inputtext por
+   defecto (su label es un <span>, no un <input>): sin esto queda mas alto
+   que Fecha y N° Pedido ERP en la misma fila. Se fija una altura explicita
+   igual a la de los demas controles y se centra el label dentro. */
+.orden-form-header-grid .p-dropdown {
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.orden-form-header-grid .p-dropdown .p-dropdown-label {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.orden-form-header-grid .p-dropdown .p-dropdown-trigger {
+  height: 100%;
+}
+
+.orden-form-header-grid .p-inputtext,
+.orden-form-header-grid .p-calendar .p-inputtext {
+  height: 2.5rem;
+}
+
 .orden-form-observaciones {
   margin-top: var(--np-space-md);
 }
@@ -78,6 +105,16 @@
   margin: 0 0 1rem;
   font-size: 0.85rem;
   color: var(--np-text-muted);
+}
+
+.buscar-pedido-filtros {
+  display: flex;
+  gap: var(--np-space-md);
+  margin-bottom: var(--np-space-md);
+}
+
+.buscar-pedido-filtros .field {
+  margin-bottom: 0;
 }
 
 .buscar-pedido-grid {
@@ -133,6 +170,17 @@
 .buscar-pedido-hint-danger {
   color: var(--np-danger-text);
   font-weight: 600;
+}
+
+/* Solo la celda Cantidad tiene una segunda linea ("Máx. disponible: N"), lo
+   que alarga esa fila. Sin vertical-align:top explicito, el default de
+   PrimeReact centra verticalmente Producto/Precio/Subtotal dentro de esa
+   fila mas alta, quedando mas abajo que el input de Cantidad (que arranca
+   siempre en el tope de su propia columna flex). Se alinean las 5 columnas
+   al tope para que el input de Cantidad quede a la misma altura que las
+   demas, con independencia de si el hint esta presente o no. */
+.orden-form-lineas-table .p-datatable-tbody > tr > td {
+  vertical-align: top;
 }
 
 .orden-form-cantidad-cell {
