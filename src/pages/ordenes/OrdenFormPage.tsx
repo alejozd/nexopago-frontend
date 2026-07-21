@@ -112,6 +112,10 @@ export function OrdenFormPage() {
   const [lineasError, setLineasError] = useState<string | null>(null);
   const [buscarPedidoVisible, setBuscarPedidoVisible] = useState(false);
   const [isResolvingPedido, setIsResolvingPedido] = useState(false);
+  // Fecha del pedido Helisa seleccionado (YYYY-MM-DD), para persistirla junto
+  // con la orden. No hay un <input> para esto: numeroPedidoHelisa/fechaOrden
+  // ya identifican la orden en pantalla, este dato solo viaja al backend.
+  const [fechaPedidoHelisa, setFechaPedidoHelisa] = useState<string | null>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
@@ -149,6 +153,7 @@ export function OrdenFormPage() {
         proyecto: orden.proyecto ?? '',
         solicitud: orden.solicitud ?? '',
       });
+      setFechaPedidoHelisa(orden.fechaPedidoHelisa);
       setLineas(
         orden.detalles.map((linea) => ({
           producto: productoDesdeLinea(linea.productoId, linea.productoDescripcion),
@@ -199,6 +204,10 @@ export function OrdenFormPage() {
   // usuario la completa o la elimina antes de guardar.
   const handleConfirmPedidoHelisa = async (pedido: HelisaPedidoResumen, detalle: HelisaPedidoDetalle) => {
     setValue('numeroPedidoHelisa', pedido.numeroPedido, { shouldValidate: true });
+    // pedido.fecha viene formateada 'YYYY/MM/DD' (HEDATETOSTR de Firebird);
+    // se normaliza a 'YYYY-MM-DD' para que coincida con lo que espera el
+    // backend (mismo formato usado para fechaOrden).
+    setFechaPedidoHelisa(dayjs(pedido.fecha, 'YYYY/MM/DD').format('YYYY-MM-DD'));
     setIsResolvingPedido(true);
     try {
       const nuevasLineas = await Promise.all(
@@ -280,8 +289,7 @@ export function OrdenFormPage() {
       proveedorId: values.proveedorId,
       fechaOrden: dayjs(values.fechaOrden).format('YYYY-MM-DD'),
       numeroPedidoHelisa: values.numeroPedidoHelisa.trim() || null,
-      fechaPedidoHelisa: null,
-      totalPedidoHelisa: null,
+      fechaPedidoHelisa,
       observaciones: values.observaciones.trim() || null,
       proyecto: values.proyecto.trim(),
       solicitud: values.solicitud.trim(),
