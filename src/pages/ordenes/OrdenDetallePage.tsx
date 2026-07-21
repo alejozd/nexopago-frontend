@@ -66,12 +66,33 @@ const COLOR_POR_CATEGORIA: Record<CategoriaTrazabilidad, { color: string; colorT
   recibo: { color: 'var(--np-success)', colorTexto: 'var(--np-success)' },
 };
 
-// No hay tracking de cantidades recibidas en el backend, asi que el %
-// recibido es una estimacion a partir del estado, no un dato exacto.
+// Fallback SOLO para ordenes sin ningun registro real en ENTRADA_DETALLE
+// (datos de antes de esta funcionalidad, ver construirTimeline): estimacion
+// a partir del estado, no un dato exacto. Para todo lo demas se usa
+// calcularPorcentajeRecibido(), que si es real.
 function estimarPorcentajeRecibido(estado: OrdenEstado): number {
   if (estado === 'RECIBIDA') return 100;
   if (estado === 'PARCIALMENTE_RECIBIDA') return 50;
   return 0;
+}
+
+// % recibido real: suma de cantidad pedida vs. suma de cantidad ya recibida
+// en todas las lineas (orden.detalles ya trae cantidad/cantidadRecibida por
+// linea, ver TOrdenesService.GetByID). Reemplaza la estimacion por estado,
+// EXCEPTO para ordenes viejas que ya estan RECIBIDA/PARCIALMENTE_RECIBIDA
+// pero no tienen ningun registro en ENTRADA_DETALLE (datos de antes de esta
+// funcionalidad): ahi se cae al mismo estimado por estado que ya usaba el
+// timeline, para no mostrar 0% en una orden que el propio ESTADO dice que
+// si se recibio.
+function calcularPorcentajeRecibido(orden: OrdenDetalle): number {
+  const totalOrdenado = orden.detalles.reduce((sum, linea) => sum + linea.cantidad, 0);
+  const totalRecibido = orden.detalles.reduce((sum, linea) => sum + linea.cantidadRecibida, 0);
+
+  if (totalRecibido <= 0 && (orden.estado === 'RECIBIDA' || orden.estado === 'PARCIALMENTE_RECIBIDA')) {
+    return estimarPorcentajeRecibido(orden.estado);
+  }
+  if (totalOrdenado <= 0) return 0;
+  return Math.min(100, Math.round((totalRecibido / totalOrdenado) * 100));
 }
 
 function calcularPorcentajePagado(orden: OrdenDetalle): number {
@@ -196,7 +217,7 @@ export function OrdenDetallePage() {
     return <p>No fue posible cargar la orden.</p>;
   }
 
-  const porcentajeRecibido = estimarPorcentajeRecibido(orden.estado);
+  const porcentajeRecibido = calcularPorcentajeRecibido(orden);
   const porcentajePagado = calcularPorcentajePagado(orden);
   const timelineEvents = construirTimeline(orden, entradas, recibos, porcentajePagado);
 
@@ -223,14 +244,50 @@ export function OrdenDetallePage() {
 
       <div className="orden-detalle-grid">
         <div className="orden-detalle-main">
-          <Card title={`Orden ${orden.numeroOrden}`}>
+          <Card>
+            <div className="orden-header-top">
+              <div className="orden-header-titulo">
+                <h2>Orden {orden.numeroOrden}</h2>
+                <p>Gestión de orden de compra y recepción de materiales.</p>
+              </div>
+              {orden.estado !== 'ANULADA' && (
+                <div className="orden-header-actions">
+                  {(orden.estado === 'BORRADOR' || orden.estado === 'PENDIENTE') && (
+                    <Button
+                      label="Editar Orden"
+                      icon="pi pi-pencil"
+                      severity="info"
+                      outlined
+                      onClick={() => navigate(`/ordenes/${orden.id}/editar`)}
+                    />
+                  )}
+                  {ESTADOS_CON_ENTRADA_PENDIENTE.includes(orden.estado) && (
+                    <Button
+                      label="Registrar Entrada"
+                      icon="pi pi-truck"
+                      severity="success"
+                      onClick={() => setEntradaDialogVisible(true)}
+                    />
+                  )}
+                  <Button
+                    label="Anular Orden"
+                    icon="pi pi-ban"
+                    severity="danger"
+                    outlined
+                    loading={anularMutation.isPending}
+                    onClick={confirmAnular}
+                  />
+                </div>
+              )}
+            </div>
+
             <div className="orden-header-grid">
               <div className="orden-header-field">
                 <label>Proveedor</label>
                 <span>{orden.proveedorNombre}</span>
               </div>
               <div className="orden-header-field">
-                <label>Fecha</label>
+                <label>Fecha de Emisión</label>
                 <span>{formatDate(orden.fechaOrden)}</span>
               </div>
               <div className="orden-header-field">
@@ -239,39 +296,9 @@ export function OrdenDetallePage() {
               </div>
               <div className="orden-header-field">
                 <label>Valor Total</label>
-                <span>{formatCurrency(orden.valorTotal)}</span>
+                <span className="orden-header-valor-total">{formatCurrency(orden.valorTotal)}</span>
               </div>
             </div>
-            {orden.estado !== 'ANULADA' && (
-              <div className="orden-header-actions">
-                {(orden.estado === 'BORRADOR' || orden.estado === 'PENDIENTE') && (
-                  <Button
-                    label="Editar Orden"
-                    icon="pi pi-pencil"
-                    severity="info"
-                    outlined
-                    onClick={() => navigate(`/ordenes/${orden.id}/editar`)}
-                  />
-                )}
-                {ESTADOS_CON_ENTRADA_PENDIENTE.includes(orden.estado) && (
-                  <Button
-                    label="Registrar Entrada"
-                    icon="pi pi-truck"
-                    severity="success"
-                    outlined
-                    onClick={() => setEntradaDialogVisible(true)}
-                  />
-                )}
-                <Button
-                  label="Anular Orden"
-                  icon="pi pi-ban"
-                  severity="danger"
-                  outlined
-                  loading={anularMutation.isPending}
-                  onClick={confirmAnular}
-                />
-              </div>
-            )}
           </Card>
 
           <Card title="Detalle de la Orden">
@@ -354,10 +381,12 @@ export function OrdenDetallePage() {
           <Card title="Progreso">
             <div className="orden-progreso-item">
               <div className="progreso-label">
-                {/* No hay tracking de cantidades recibidas en el backend: ver
-                    estimarPorcentajeRecibido(). Se rotula "estimado" para no
-                    presentar una adivinanza como si fuera un dato exacto. */}
-                <span>% Recibido (estimado)</span>
+                {/* Real: suma cantidad/cantidadRecibida de orden.detalles (ver
+                    calcularPorcentajeRecibido). Ordenes viejas sin ningun
+                    registro en ENTRADA_DETALLE caen en 0% aqui aunque su
+                    ESTADO diga PARCIALMENTE_RECIBIDA/RECIBIDA -- ver el
+                    fallback en construirTimeline con estimarPorcentajeRecibido. */}
+                <span>% Recibido</span>
                 <span>{porcentajeRecibido}%</span>
               </div>
               <ProgressBar value={porcentajeRecibido} showValue={false} />

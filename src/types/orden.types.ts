@@ -28,6 +28,11 @@ export interface OrdenLinea {
   // Consecutivo de la linea del pedido Helisa de la que salio esta cantidad
   // (null si la linea se agrego manualmente, sin pasar por el buscador).
   consecutivoPedidoHelisa: number | null;
+  // Suma real de entradas de mercancia ya registradas para esta linea (0 si
+  // aun no se ha recibido nada). Ver ENTRADA_DETALLE.
+  cantidadRecibida: number;
+  // cantidad - cantidadRecibida. Tope maximo al registrar una nueva entrada.
+  saldoPendiente: number;
 }
 
 export interface OrdenDetalle {
