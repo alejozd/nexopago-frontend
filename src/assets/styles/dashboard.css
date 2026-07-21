@@ -35,10 +35,20 @@
   border-left: 4px solid var(--np-success);
 }
 
+/* Orden vertical (rediseño Stitch, 2026-07-21): titulo+icono arriba, valor
+   debajo a todo el ancho, y opcionalmente un separador + descripcion. Antes
+   el icono vivia a la izquierda con el valor/label a su derecha. */
 .kpi-card {
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+}
+
+.kpi-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
 }
 
 .kpi-icon {
@@ -53,13 +63,12 @@
   color: #fff;
 }
 
-/* min-width:0 permite que este contenedor se encoja por debajo de su
-   contenido dentro del flex de .kpi-card -- sin esto .kpi-value no puede
-   truncar con ellipsis y en su lugar desborda la tarjeta (valores largos
-   como un nombre de proveedor o un numero de orden, no solo cifras). */
-.kpi-text {
-  min-width: 0;
-  flex: 1;
+/* Separador entre el valor y la descripcion (solo se renderiza si hay
+   `subtitulo`, ver KpiCard.tsx): una linea tenue, no una regla dura. */
+.kpi-divider {
+  border: none;
+  border-top: 1px solid var(--np-line);
+  margin: 0.5rem 0 0.4rem;
 }
 
 .kpi-icon-primary {
@@ -119,40 +128,38 @@
 }
 
 .kpi-label {
-  font-size: 0.82rem;
-  color: var(--np-text-body);
-  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--np-text-muted);
 }
 
 .kpi-subtitulo {
   font-size: 0.78rem;
   color: var(--np-text-muted);
-  margin-top: 0.4rem;
-}
-
-.kpi-card-wrapper--compact .kpi-card {
-  gap: 0.65rem;
 }
 
 .kpi-card-wrapper--compact .kpi-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  font-size: 1.15rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.25rem;
 }
 
 .kpi-card-wrapper--compact .kpi-value {
   font-size: 2.1rem;
 }
 
-.kpi-card-wrapper--compact .kpi-label {
-  font-size: 0.88rem;
-  font-weight: 500;
-  margin-top: 0.05rem;
-  color: var(--np-text-body);
+.kpi-card-wrapper--compact .p-card-body {
+  padding: 0.75rem 1rem;
 }
 
-.kpi-card-wrapper--compact .p-card-body {
-  padding: 0.85rem 1.15rem;
+/* PrimeReact Card tiene DOS capas de padding: .p-card-body (arriba, ya
+   ajustada) y, dentro, .p-card-content (1.25rem arriba/abajo por defecto,
+   ver theme.css). Sin neutralizar esta segunda capa, queda espacio vacio
+   extra arriba y abajo del contenido aunque .p-card-body ya este ajustado. */
+.kpi-card-wrapper--compact .p-card-content {
+  padding: 0;
 }
 
 /* Variante para valores que pueden ser texto largo en vez de una cifra
@@ -163,7 +170,7 @@
    aunque algunas sí quepan en 1 sola linea. Ver KpiCard.tsx (prop
    `wrapValue`). */
 .kpi-card-wrapper--wrap-value .kpi-value {
-  font-size: 1.35rem;
+  font-size: 1.6rem;
   white-space: normal;
   display: -webkit-box;
   -webkit-line-clamp: 2;

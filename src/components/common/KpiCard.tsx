@@ -41,14 +41,19 @@ export function KpiCard({
   return (
     <Card className={`kpi-card-wrapper kpi-accent-${accent}${sizeClass}${destacadoClass}${wrapClass}`}>
       <div className="kpi-card">
-        <span className={`kpi-icon kpi-icon-${accent}`}>
-          <i className={icon} />
-        </span>
-        <div className="kpi-text">
-          <div className="kpi-value" title={value}>{value}</div>
-          <div className="kpi-label">{label}</div>
-          {subtitulo && <div className="kpi-subtitulo">{subtitulo}</div>}
+        <div className="kpi-card-header">
+          <span className="kpi-label">{label}</span>
+          <span className={`kpi-icon kpi-icon-${accent}`}>
+            <i className={icon} />
+          </span>
         </div>
+        <div className="kpi-value" title={value}>{value}</div>
+        {subtitulo && (
+          <>
+            <hr className="kpi-divider" />
+            <div className="kpi-subtitulo">{subtitulo}</div>
+          </>
+        )}
       </div>
     </Card>
   );

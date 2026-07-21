@@ -263,6 +263,7 @@ export function DashboardPage() {
           label="Valor Total de Cartera"
           value={formatCurrency(dashboard.valorTotalCartera)}
           accent="success"
+          size="compact"
           destacado
           subtitulo={`Repartido en ${dashboard.pagosPendientes} orden${dashboard.pagosPendientes === 1 ? '' : 'es'} pendiente${dashboard.pagosPendientes === 1 ? '' : 's'}`}
         />
@@ -272,18 +273,24 @@ export function DashboardPage() {
             label="Órdenes Pendientes"
             value={String(dashboard.ordenesPendientes)}
             accent="warning"
+            size="compact"
+            subtitulo="Actualmente en proceso"
           />
           <KpiCard
             icon="pi pi-receipt"
             label="Recibos Creados"
             value={String(dashboard.recibosCreados)}
             accent="primary"
+            size="compact"
+            subtitulo="Registrados este periodo"
           />
           <KpiCard
             icon="pi pi-clock"
             label="Pagos Pendientes"
             value={String(dashboard.pagosPendientes)}
             accent="danger"
+            size="compact"
+            subtitulo="Requieren atención inmediata"
           />
         </div>
       </div>
