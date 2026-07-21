@@ -19,6 +19,7 @@ import type { ReciboCaja } from '../../types/recibo.types';
 import '../../assets/styles/ordenes.css';
 
 type EtapaSello = 'done' | 'active' | 'pendiente';
+type CategoriaTrazabilidad = 'creacion' | 'entrada' | 'recibo';
 
 interface TimelineEvent {
   status: string;
@@ -28,9 +29,29 @@ interface TimelineEvent {
   /** Estado visual del "sello" de trazabilidad: cumplida, en curso o
    * pendiente. Ver construirTimeline() para el criterio de cada etapa. */
   etapa: EtapaSello;
+  /** A que tipo de hito pertenece (creacion/entrada/recibo): define el color
+   * del marcador (ver COLOR_POR_CATEGORIA). El estado (etapa) sigue
+   * comunicandose con la forma del marcador (solido/anillo/hueco), no con
+   * el color. */
+  categoria: CategoriaTrazabilidad;
   /** Porcentaje mostrado en el centro del marcador cuando etapa === 'active'. */
   percent?: number;
 }
+
+// Un color por categoria (no por etapa) para que Creacion/Entrada/Recibo se
+// distingan a simple vista, ademas del icono. Reutiliza tokens semanticos ya
+// aprobados en design-system.css (ninguno nuevo): --np-sello sigue siendo el
+// acento de marca (Creacion, el origen del hito), --np-success ya es el
+// verde de "completado" en el resto de la app (Recibo = dinero recibido).
+// Entrada usa --np-neutral (azul-grisaceo) en vez de --np-teal: teal y
+// success son ambos verdes y se confundian entre si (--np-neutral no se usa
+// en ningun otro lado de la app todavia). "pendiente" se mantiene neutro a
+// proposito (nada ha pasado todavia, sin importar la categoria).
+const COLOR_POR_CATEGORIA: Record<CategoriaTrazabilidad, { color: string; colorTexto: string }> = {
+  creacion: { color: 'var(--np-sello)', colorTexto: 'var(--np-sello-text)' },
+  entrada: { color: 'var(--np-neutral)', colorTexto: 'var(--np-neutral)' },
+  recibo: { color: 'var(--np-success)', colorTexto: 'var(--np-success)' },
+};
 
 // No hay tracking de cantidades recibidas en el backend, asi que el %
 // recibido es una estimacion a partir del estado, no un dato exacto.
@@ -62,6 +83,7 @@ function construirTimeline(orden: OrdenDetalle, recibos: ReciboCaja[], porcentaj
       date: formatDate(orden.fechaOrden),
       icon: 'pi pi-file',
       etapa: 'done',
+      categoria: 'creacion',
       description: `Orden ${orden.numeroOrden} creada para ${orden.proveedorNombre}.`,
     },
   ];
@@ -73,6 +95,7 @@ function construirTimeline(orden: OrdenDetalle, recibos: ReciboCaja[], porcentaj
       status: 'Entrada de Mercancía',
       icon: 'pi pi-truck',
       etapa: esParcial ? 'active' : 'done',
+      categoria: 'entrada',
       percent: esParcial ? estimarPorcentajeRecibido(orden.estado) : undefined,
       description: 'Entrada de mercancía registrada.',
     });
@@ -85,6 +108,7 @@ function construirTimeline(orden: OrdenDetalle, recibos: ReciboCaja[], porcentaj
         date: formatDate(recibo.fechaRecibo),
         icon: 'pi pi-money-bill',
         etapa: 'done',
+        categoria: 'recibo',
         description: `${formatCurrency(recibo.monto)} — ${recibo.tipoPago}${
           recibo.estado === 'ANULADO' ? ' (anulado)' : ''
         }`,
@@ -95,6 +119,7 @@ function construirTimeline(orden: OrdenDetalle, recibos: ReciboCaja[], porcentaj
       status: 'Recibos de Caja',
       icon: 'pi pi-money-bill',
       etapa: 'active',
+      categoria: 'recibo',
       percent: porcentajePagado,
       description: 'Pagos parciales aplicados, aún sin recibo registrado.',
     });
@@ -103,6 +128,7 @@ function construirTimeline(orden: OrdenDetalle, recibos: ReciboCaja[], porcentaj
       status: 'Recibos de Caja',
       icon: 'pi pi-money-bill',
       etapa: 'pendiente',
+      categoria: 'recibo',
       description: 'Aún no se han registrado recibos para esta orden.',
     });
   }
@@ -244,9 +270,13 @@ export function OrdenDetallePage() {
                   <span
                     className={`orden-timeline-marker orden-timeline-marker--${item.etapa}`}
                     style={
-                      item.etapa === 'active' && item.percent != null
-                        ? ({ '--tl-percent': `${item.percent}%` } as CSSProperties)
-                        : undefined
+                      {
+                        '--tl-color': COLOR_POR_CATEGORIA[item.categoria].color,
+                        '--tl-color-text': COLOR_POR_CATEGORIA[item.categoria].colorTexto,
+                        ...(item.etapa === 'active' && item.percent != null
+                          ? { '--tl-percent': `${item.percent}%` }
+                          : {}),
+                      } as CSSProperties
                     }
                   >
                     {item.etapa === 'active' && item.percent != null ? (

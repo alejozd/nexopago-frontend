@@ -59,6 +59,18 @@
   padding-bottom: 0.5rem;
 }
 
+/* PrimeReact estira cada evento a la altura del mas alto (align-items:
+   stretch por defecto en .p-timeline horizontal) y reparte ese sobrante
+   entre .p-timeline-event-opposite (vacio, no usamos "opposite") y
+   .p-timeline-event-content -ambos flex:1-, lo que empuja el marcador
+   hacia abajo mas o menos segun cuantas lineas tenga el contenido de CADA
+   evento (fecha presente o no, descripcion de 1 o 2 lineas). Ancla los
+   marcadores al tope para que queden alineados sin importar la altura del
+   contenido de abajo. */
+.orden-timeline-horizontal-wrap .p-timeline-horizontal {
+  align-items: flex-start;
+}
+
 .orden-timeline-content {
   width: 11rem;
 }
@@ -80,10 +92,16 @@
   color: var(--np-text-title);
 }
 
-/* Timeline de trazabilidad — tratamiento de "sello": este es el UNICO lugar
-   de la app donde los marcadores usan el lenguaje visual de sello/tinta de
-   --np-sello (ver design-system.css). No replicar como decoracion en otras
-   pantallas. */
+/* Timeline de trazabilidad — cada marcador recibe su color por CATEGORIA via
+   --tl-color/--tl-color-text (ver COLOR_POR_CATEGORIA en OrdenDetallePage.tsx):
+   Creacion = --np-sello (el acento de marca, sigue siendo el UNICO uso de
+   --np-sello fuera de botones/links), Entrada = --np-neutral (azul-grisaceo,
+   distinto en matiz de los otros dos), Recibo = --np-success. La ETAPA
+   (done/active/pendiente) se sigue comunicando por la FORMA del marcador
+   (solido/anillo/hueco), no por el color -"pendiente" se mantiene neutro a
+   proposito, sin importar la categoria-. No reutilizar estos tokens aqui
+   para otra cosa que no sea esta trazabilidad, y seguir sin usar --np-sello
+   como color de serie en graficos (ver DashboardPage.tsx). */
 .orden-timeline-marker {
   display: flex;
   align-items: center;
@@ -96,9 +114,10 @@
   box-shadow: 0 2px 6px rgba(22, 36, 31, 0.18);
 }
 
-/* Etapa cumplida: circulo relleno de sello con un anillo punteado sutil. */
+/* Etapa cumplida: circulo relleno del color de la categoria, con un anillo
+   punteado sutil del mismo color. */
 .orden-timeline-marker--done {
-  background: var(--np-sello);
+  background: var(--tl-color, var(--np-sello));
   color: #fff;
 }
 
@@ -107,14 +126,14 @@
   position: absolute;
   inset: -4px;
   border-radius: 50%;
-  border: 1.5px dashed var(--np-sello);
+  border: 1.5px dashed var(--tl-color, var(--np-sello));
   opacity: 0.45;
 }
 
 /* Etapa en curso: anillo tipo conic-gradient parcial (--tl-percent inline)
    con el porcentaje en el centro, en la monoespaciada de cifras. */
 .orden-timeline-marker--active {
-  background: conic-gradient(var(--np-sello) 0% var(--tl-percent, 50%), var(--np-line) var(--tl-percent, 50%) 100%);
+  background: conic-gradient(var(--tl-color, var(--np-sello)) 0% var(--tl-percent, 50%), var(--np-line) var(--tl-percent, 50%) 100%);
 }
 
 .orden-timeline-marker--active::before {
@@ -131,7 +150,7 @@
   font-family: var(--np-font-mono);
   font-size: 0.65rem;
   font-weight: 600;
-  color: var(--np-sello-text);
+  color: var(--tl-color-text, var(--np-sello-text));
 }
 
 /* Etapa pendiente: estilo neutro/apagado. */

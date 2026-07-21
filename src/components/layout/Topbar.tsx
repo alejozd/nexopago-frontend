@@ -13,6 +13,12 @@ function resolveTitle(pathname: string): string {
   return match?.label ?? 'NexoPago';
 }
 
+// No hay soporte para foto de perfil (fuera de alcance): se muestran las
+// iniciales de nombre/apellido en vez de un icono generico igual para todos.
+function obtenerIniciales(nombre: string, apellido: string): string {
+  return `${nombre.trim().charAt(0)}${apellido.trim().charAt(0)}`.toUpperCase();
+}
+
 export function Topbar() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -69,7 +75,15 @@ export function Topbar() {
               </span>
             )}
           </span>
-          <Avatar icon="pi pi-user" shape="circle" className="app-topbar-avatar" />
+          {usuario ? (
+            <Avatar
+              label={obtenerIniciales(usuario.nombre, usuario.apellido)}
+              shape="circle"
+              className="app-topbar-avatar"
+            />
+          ) : (
+            <Avatar icon="pi pi-user" shape="circle" className="app-topbar-avatar" />
+          )}
           <span className="pi pi-chevron-down app-topbar-chevron" />
         </button>
         <Menu model={userMenuItems} popup ref={menuRef} />
