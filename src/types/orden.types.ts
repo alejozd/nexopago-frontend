@@ -5,6 +5,8 @@ export interface OrdenListItem {
   numeroOrden: string;
   fechaOrden: string;
   proveedorNombre: string;
+  proyecto: string;
+  solicitud: string;
   estado: OrdenEstado;
   valorTotal: number;
 }
@@ -37,6 +39,8 @@ export interface OrdenDetalle {
   fechaPedidoHelisa: string | null;
   totalPedidoHelisa: number | null;
   observaciones: string | null;
+  proyecto: string | null;
+  solicitud: string | null;
   estado: OrdenEstado;
   valorTotal: number;
   montoPagado: number;
@@ -60,5 +64,7 @@ export interface OrdenCreateDTO {
   fechaPedidoHelisa: string | null;
   totalPedidoHelisa: number | null;
   observaciones: string | null;
+  proyecto: string | null;
+  solicitud: string | null;
   detalles: OrdenLineaCreateDTO[];
 }
