@@ -8,6 +8,7 @@ export function useSincronizarProductos() {
     mutationFn: sincronizarProductos,
     onSuccess: (resumen) => {
       queryClient.invalidateQueries({ queryKey: ['productos', 'list'] });
+      queryClient.invalidateQueries({ queryKey: ['productos', 'resumen'] });
       showSuccessToast(
         `Sincronización completa: ${resumen.nuevos} nuevos, ${resumen.actualizados} actualizados de ${resumen.totalLeidos} productos leídos del ERP.`,
       );

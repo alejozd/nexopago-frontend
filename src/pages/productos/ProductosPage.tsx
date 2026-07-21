@@ -8,9 +8,10 @@ import { InputIcon } from 'primereact/inputicon';
 import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
 import { useProductosQuery } from '../../hooks/productos/useProductosQuery';
+import { useProductosResumenQuery } from '../../hooks/productos/useProductosResumenQuery';
 import { useSincronizarProductos } from '../../hooks/productos/useSincronizarProductos';
 import { KpiCard } from '../../components/common/KpiCard';
-import { formatCurrency } from '../../utils/formatters';
+import { formatCurrency, formatDateTime } from '../../utils/formatters';
 import type { Producto } from '../../types/producto.types';
 import type { PagedParams } from '../../types/common.types';
 import '../../assets/styles/productos.css';
@@ -23,6 +24,7 @@ export function ProductosPage() {
   const [searchInput, setSearchInput] = useState('');
 
   const { data, isLoading } = useProductosQuery(params);
+  const { data: resumen } = useProductosResumenQuery();
   const sincronizarMutation = useSincronizarProductos();
 
   useEffect(() => {
@@ -48,7 +50,18 @@ export function ProductosPage() {
     <Card title="Productos">
       <div className="productos-toolbar">
         <div className="productos-total-kpi">
-          <KpiCard icon="pi pi-box" label="Total de productos" value={String(data?.totalRecords ?? 0)} accent="primary" size="compact" />
+          <KpiCard
+            icon="pi pi-box"
+            label="Total de productos"
+            value={String(data?.totalRecords ?? 0)}
+            accent="primary"
+            size="compact"
+            subtitulo={
+              resumen?.ultimaSincronizacion
+                ? `Última sync: ${formatDateTime(resumen.ultimaSincronizacion)}`
+                : 'Aún no se ha sincronizado'
+            }
+          />
         </div>
 
         <div className="productos-toolbar" style={{ marginBottom: 0 }}>

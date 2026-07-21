@@ -15,3 +15,8 @@ export interface SincronizacionResumen {
   actualizados: number;
   fechaHoraSinc: string;
 }
+
+export interface ProductosResumen {
+  total: number;
+  ultimaSincronizacion: string | null;
+}
