@@ -7,6 +7,7 @@ import { Column } from 'primereact/column';
 import { ProgressBar } from 'primereact/progressbar';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Timeline } from 'primereact/timeline';
+import { Tag } from 'primereact/tag';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { useOrdenDetalleQuery } from '../../hooks/ordenes/useOrdenDetalleQuery';
 import { useRecibosDeOrdenQuery } from '../../hooks/ordenes/useRecibosDeOrdenQuery';
@@ -338,22 +339,68 @@ export function OrdenDetallePage() {
           </Card>
         </div>
 
-        <Card title="Progreso">
-          <div className="orden-progreso-item">
-            <div className="progreso-label">
-              <span>% Recibido</span>
-              <span>{porcentajeRecibido}%</span>
+        <div className="orden-sidebar-cards">
+          <Card title="Progreso">
+            <div className="orden-progreso-item">
+              <div className="progreso-label">
+                {/* No hay tracking de cantidades recibidas en el backend: ver
+                    estimarPorcentajeRecibido(). Se rotula "estimado" para no
+                    presentar una adivinanza como si fuera un dato exacto. */}
+                <span>% Recibido (estimado)</span>
+                <span>{porcentajeRecibido}%</span>
+              </div>
+              <ProgressBar value={porcentajeRecibido} showValue={false} />
             </div>
-            <ProgressBar value={porcentajeRecibido} showValue={false} />
-          </div>
-          <div className="orden-progreso-item">
-            <div className="progreso-label">
-              <span>% Pagado</span>
-              <span>{porcentajePagado}%</span>
+            <div className="orden-progreso-item">
+              <div className="progreso-label">
+                <span>% Pagado</span>
+                <span>{porcentajePagado}%</span>
+              </div>
+              <ProgressBar value={porcentajePagado} showValue={false} />
             </div>
-            <ProgressBar value={porcentajePagado} showValue={false} />
-          </div>
-        </Card>
+          </Card>
+
+          <Card title="Pagos">
+            <div className={`orden-saldo-card orden-saldo-card--${orden.saldoPendiente > 0 ? 'pendiente' : 'saldado'}`}>
+              <span className="orden-saldo-icono">
+                <i className={orden.saldoPendiente > 0 ? 'pi pi-wallet' : 'pi pi-check-circle'} />
+              </span>
+              <div>
+                <div className="orden-saldo-valor">{formatCurrency(orden.saldoPendiente)}</div>
+                <div className="orden-saldo-label">
+                  {orden.saldoPendiente > 0 ? 'Saldo pendiente' : 'Orden saldada'}
+                </div>
+              </div>
+            </div>
+
+            {recibos.length === 0 ? (
+              <p className="orden-pagos-vacio">Aún no se han registrado recibos para esta orden.</p>
+            ) : (
+              <ul className="orden-pagos-lista">
+                {recibos.map((recibo) => (
+                  <li
+                    key={recibo.id}
+                    className={`orden-pago-item${recibo.estado === 'ANULADO' ? ' orden-pago-item--anulado' : ''}`}
+                  >
+                    <i
+                      className={`orden-pago-icono pi ${
+                        recibo.estado === 'ANULADO' ? 'pi-times-circle' : 'pi-check-circle'
+                      }`}
+                    />
+                    <div className="orden-pago-info">
+                      <div className="orden-pago-numero">{recibo.numeroRecibo}</div>
+                      <div className="orden-pago-fecha">{formatDate(recibo.fechaRecibo)}</div>
+                    </div>
+                    <div className="orden-pago-monto-wrap">
+                      <div className="orden-pago-monto">{formatCurrency(recibo.monto)}</div>
+                      <Tag value={recibo.tipoPago} severity={recibo.tipoPago === 'TOTAL' ? 'success' : 'info'} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+        </div>
       </div>
 
       <EntradaFormDialog

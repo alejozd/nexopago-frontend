@@ -23,6 +23,125 @@
   gap: var(--np-space-xl);
 }
 
+.orden-sidebar-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--np-space-xl);
+}
+
+/* Resumen de saldo (tarjeta "Pagos") — mismo lenguaje visual de icono-en-
+   circulo que KpiCard, pero sin duplicar el <Card> (ya vive dentro de uno). */
+.orden-saldo-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--np-line);
+}
+
+.orden-saldo-icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  flex: none;
+  font-size: 1.1rem;
+}
+
+.orden-saldo-card--pendiente .orden-saldo-icono {
+  background: var(--np-warning-bg);
+  color: var(--np-warning);
+}
+
+.orden-saldo-card--saldado .orden-saldo-icono {
+  background: var(--np-success-bg);
+  color: var(--np-success);
+}
+
+.orden-saldo-valor {
+  font-family: var(--np-font-mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--np-text-title);
+  line-height: 1.2;
+}
+
+.orden-saldo-label {
+  font-size: 0.78rem;
+  color: var(--np-text-muted);
+}
+
+.orden-pagos-vacio {
+  font-size: 0.85rem;
+  color: var(--np-text-muted);
+  margin: 0;
+}
+
+.orden-pagos-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.orden-pago-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.orden-pago-icono {
+  font-size: 1.05rem;
+  color: var(--np-success);
+  flex: none;
+}
+
+.orden-pago-item--anulado .orden-pago-icono {
+  color: var(--np-text-muted);
+}
+
+.orden-pago-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.orden-pago-numero {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--np-text-title);
+}
+
+.orden-pago-fecha {
+  font-family: var(--np-font-mono);
+  font-size: 0.72rem;
+  color: var(--np-text-muted);
+}
+
+.orden-pago-monto-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+}
+
+.orden-pago-monto {
+  font-family: var(--np-font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--np-text-title);
+}
+
+.orden-pago-item--anulado .orden-pago-numero,
+.orden-pago-item--anulado .orden-pago-monto {
+  color: var(--np-text-muted);
+  text-decoration: line-through;
+}
+
 .orden-header-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
