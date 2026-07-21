@@ -10,22 +10,34 @@ import { Timeline } from 'primereact/timeline';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { useOrdenDetalleQuery } from '../../hooks/ordenes/useOrdenDetalleQuery';
 import { useRecibosDeOrdenQuery } from '../../hooks/ordenes/useRecibosDeOrdenQuery';
+import { useEntradasDeOrdenQuery } from '../../hooks/ordenes/useEntradasDeOrdenQuery';
 import { useAnularOrden } from '../../hooks/ordenes/useAnularOrden';
 import { StatusTag } from '../../components/common/StatusTag';
 import { EntradaFormDialog } from './EntradaFormDialog';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import type { OrdenDetalle, OrdenEstado, OrdenLinea } from '../../types/orden.types';
 import type { ReciboCaja } from '../../types/recibo.types';
+import type { EntradaMercancia } from '../../types/entrada.types';
 import '../../assets/styles/ordenes.css';
 
 type EtapaSello = 'done' | 'active' | 'pendiente';
 type CategoriaTrazabilidad = 'creacion' | 'entrada' | 'recibo';
 
 interface TimelineEvent {
+  /** 1ra linea: nombre de la etapa. */
   status: string;
+  /** 2da linea. Solo se omite en los estados sintéticos que aun no tienen un
+   * documento real detras (recibo "active"/"pendiente" antes del primer
+   * abono). */
   date?: string;
   icon: string;
+  /** 3ra linea: el "valor" del documento de esa etapa (moneda para
+   * Creación/Recibo, numero de documento ERP para Entrada). */
   description: string;
+  /** 4ta linea opcional, unico caso hoy: proveedor en "Creación de la Orden"
+   * (a peticion explicita del usuario, aunque ya se ve en la cabecera de la
+   * pagina). */
+  detalle?: string;
   /** Estado visual del "sello" de trazabilidad: cumplida, en curso o
    * pendiente. Ver construirTimeline() para el criterio de cada etapa. */
   etapa: EtapaSello;
@@ -68,15 +80,30 @@ function calcularPorcentajePagado(orden: OrdenDetalle): number {
 
 // Criterio del "sello" de trazabilidad (marcadores done/active/pendiente):
 // - Creación de la orden: siempre "done" (la orden ya existe).
-// - Entrada de mercancía: se sigue mostrando solo cuando ya inicio (mismo
-//   comportamiento preexistente); "done" si quedo RECIBIDA por completo,
-//   "active" con el % estimado si quedo PARCIALMENTE_RECIBIDA.
+// - Entrada de mercancía: cada entrada real ya registrada se marca "done"
+//   (puede haber mas de una por entregas parciales, ver
+//   useEntradasDeOrdenQuery). Se muestran todas, independiente del estado
+//   ACTUAL de la orden (una entrada ya ocurrida no deja de ser un hecho
+//   historico aunque la orden luego se anule). Si NO hay ninguna entrada
+//   real pero el estado de la orden ya indica que se recibio algo (datos
+//   inconsistentes de ordenes anteriores a la auditoria de entradas), se usa
+//   el mismo placeholder estimado que antes.
 // - Recibos de caja: cada recibo real ya ocurrido se marca "done" (incluso
 //   si luego se anulo, el pago si se llego a registrar). Si aun no hay
 //   ningun recibo, el paso queda "active" con el % pagado cuando ya hay
 //   abonos parciales sin recibo formal, o "pendiente" si no se ha pagado
 //   nada.
-function construirTimeline(orden: OrdenDetalle, recibos: ReciboCaja[], porcentajePagado: number): TimelineEvent[] {
+//
+// Contenido uniforme titulo/fecha/valor (3 lineas) para las etapas que
+// tienen un documento real detras; los estados sinteticos "active"/
+// "pendiente" de Recibos de Caja (sin recibo real todavia) siguen con una
+// sola linea descriptiva, porque no hay fecha ni documento que mostrar.
+function construirTimeline(
+  orden: OrdenDetalle,
+  entradas: EntradaMercancia[],
+  recibos: ReciboCaja[],
+  porcentajePagado: number,
+): TimelineEvent[] {
   const events: TimelineEvent[] = [
     {
       status: 'Creación de la Orden',
@@ -84,12 +111,23 @@ function construirTimeline(orden: OrdenDetalle, recibos: ReciboCaja[], porcentaj
       icon: 'pi pi-file',
       etapa: 'done',
       categoria: 'creacion',
-      description: `Orden ${orden.numeroOrden} creada para ${orden.proveedorNombre}.`,
+      description: formatCurrency(orden.valorTotal),
+      detalle: orden.proveedorNombre,
     },
   ];
 
-  const yaRecibida = orden.estado === 'PARCIALMENTE_RECIBIDA' || orden.estado === 'RECIBIDA';
-  if (yaRecibida) {
+  if (entradas.length > 0) {
+    entradas.forEach((entrada) => {
+      events.push({
+        status: 'Entrada de Mercancía',
+        date: formatDate(entrada.fechaEntrada),
+        icon: 'pi pi-truck',
+        etapa: 'done',
+        categoria: 'entrada',
+        description: `N.º ${entrada.numeroEntradaHelisa}`,
+      });
+    });
+  } else if (orden.estado === 'PARCIALMENTE_RECIBIDA' || orden.estado === 'RECIBIDA') {
     const esParcial = orden.estado === 'PARCIALMENTE_RECIBIDA';
     events.push({
       status: 'Entrada de Mercancía',
@@ -145,6 +183,7 @@ export function OrdenDetallePage() {
 
   const { data: orden, isLoading, isError } = useOrdenDetalleQuery(ordenId);
   const { data: recibos = [] } = useRecibosDeOrdenQuery(orden?.numeroOrden);
+  const { data: entradas = [] } = useEntradasDeOrdenQuery(orden?.id);
   const anularMutation = useAnularOrden();
   const [entradaDialogVisible, setEntradaDialogVisible] = useState(false);
 
@@ -158,7 +197,7 @@ export function OrdenDetallePage() {
 
   const porcentajeRecibido = estimarPorcentajeRecibido(orden.estado);
   const porcentajePagado = calcularPorcentajePagado(orden);
-  const timelineEvents = construirTimeline(orden, recibos, porcentajePagado);
+  const timelineEvents = construirTimeline(orden, entradas, recibos, porcentajePagado);
 
   const confirmAnular = () => {
     confirmDialog({
@@ -291,6 +330,7 @@ export function OrdenDetallePage() {
                     <div className="orden-timeline-status">{item.status}</div>
                     {item.date && <div className="orden-timeline-date">{item.date}</div>}
                     <div className="orden-timeline-description">{item.description}</div>
+                    {item.detalle && <div className="orden-timeline-detalle">{item.detalle}</div>}
                   </div>
                 )}
               />

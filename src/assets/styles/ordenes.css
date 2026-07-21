@@ -182,6 +182,15 @@
   margin-top: 0.2rem;
 }
 
+/* 4ta linea opcional (hoy solo el proveedor en "Creacion de la Orden"): un
+   escalon mas discreta que la descripcion/valor, ya que es informacion de
+   contexto, no el dato principal de la etapa. */
+.orden-timeline-detalle {
+  font-size: 0.8rem;
+  color: var(--np-text-muted);
+  margin-top: 0.15rem;
+}
+
 .orden-detalle-total-cell {
   font-weight: 700;
   color: var(--np-text-title);
