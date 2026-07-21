@@ -1,8 +1,13 @@
 import { axiosClient } from '../api/axiosClient';
 import type { HelisaPedidoDetalle, HelisaPedidoResumen } from '../types/helisaPedido.types';
 
-export async function getHelisaPedidosRecientes(): Promise<HelisaPedidoResumen[]> {
-  const response = await axiosClient.get<HelisaPedidoResumen[]>('/helisa/pedidos');
+// desde/hasta (formato YYYY-MM-DD): si no se mandan, el backend usa su
+// default de ultimos 60 dias.
+export async function getHelisaPedidosRecientes(desde?: string, hasta?: string): Promise<HelisaPedidoResumen[]> {
+  const params: Record<string, string> = {};
+  if (desde) params.desde = desde;
+  if (hasta) params.hasta = hasta;
+  const response = await axiosClient.get<HelisaPedidoResumen[]>('/helisa/pedidos', { params });
   return response.data;
 }
 

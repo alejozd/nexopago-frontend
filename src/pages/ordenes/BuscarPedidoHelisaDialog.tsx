@@ -1,14 +1,19 @@
 import { useMemo, useState } from 'react';
+import dayjs from 'dayjs';
 import { Dialog } from 'primereact/dialog';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
+import { Calendar } from 'primereact/calendar';
 import { ProgressSpinner } from 'primereact/progressspinner';
 import { Tag } from 'primereact/tag';
 import { useHelisaPedidosQuery } from '../../hooks/helisaPedidos/useHelisaPedidosQuery';
 import { useHelisaPedidoDetalleQuery } from '../../hooks/helisaPedidos/useHelisaPedidoDetalleQuery';
 import type { HelisaPedidoDetalle, HelisaPedidoDetalleLinea, HelisaPedidoResumen } from '../../types/helisaPedido.types';
 import '../../assets/styles/orden-form.css';
+
+const RANGO_DEFECTO_DIAS = 60;
+const FORMATO_ISO = 'YYYY-MM-DD';
 
 interface BuscarPedidoHelisaDialogProps {
   visible: boolean;
@@ -27,8 +32,14 @@ function esLineaAgotada(linea: HelisaPedidoDetalleLinea): boolean {
 
 export function BuscarPedidoHelisaDialog({ visible, onHide, onConfirm, ordenId }: BuscarPedidoHelisaDialogProps) {
   const [selectedPedido, setSelectedPedido] = useState<HelisaPedidoResumen | null>(null);
+  const [fechaDesde, setFechaDesde] = useState<Date>(() => dayjs().subtract(RANGO_DEFECTO_DIAS, 'day').toDate());
+  const [fechaHasta, setFechaHasta] = useState<Date>(() => dayjs().toDate());
 
-  const { data: pedidos, isLoading: isLoadingPedidos } = useHelisaPedidosQuery(visible);
+  const { data: pedidos, isLoading: isLoadingPedidos } = useHelisaPedidosQuery(
+    visible,
+    dayjs(fechaDesde).format(FORMATO_ISO),
+    dayjs(fechaHasta).format(FORMATO_ISO),
+  );
   const { data: detalle, isLoading: isLoadingDetalle } = useHelisaPedidoDetalleQuery(
     selectedPedido?.numeroPedido ?? null,
     ordenId,
@@ -63,8 +74,35 @@ export function BuscarPedidoHelisaDialog({ visible, onHide, onConfirm, ordenId }
       modal
     >
       <p className="buscar-pedido-subtitle">
-        Pedidos de compra registrados en el ERP en los últimos 60 días. Selecciona uno para ver su detalle.
+        Pedidos de compra registrados en el ERP en el rango de fechas seleccionado. Selecciona uno para ver su
+        detalle.
       </p>
+
+      <div className="buscar-pedido-filtros">
+        <div className="field">
+          <label htmlFor="buscarPedidoDesde">Desde</label>
+          <Calendar
+            id="buscarPedidoDesde"
+            value={fechaDesde}
+            onChange={(e) => e.value && setFechaDesde(e.value as Date)}
+            dateFormat="dd/mm/yy"
+            maxDate={fechaHasta}
+            showIcon
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="buscarPedidoHasta">Hasta</label>
+          <Calendar
+            id="buscarPedidoHasta"
+            value={fechaHasta}
+            onChange={(e) => e.value && setFechaHasta(e.value as Date)}
+            dateFormat="dd/mm/yy"
+            minDate={fechaDesde}
+            maxDate={new Date()}
+            showIcon
+          />
+        </div>
+      </div>
 
       <div className="buscar-pedido-grid">
         <div>
@@ -79,7 +117,7 @@ export function BuscarPedidoHelisaDialog({ visible, onHide, onConfirm, ordenId }
             size="small"
             scrollable
             scrollHeight="18rem"
-            emptyMessage="No hay pedidos registrados en los últimos 60 días."
+            emptyMessage="No hay pedidos registrados en el rango de fechas seleccionado."
           >
             <Column field="numeroPedido" header="N° Pedido" />
             <Column field="fecha" header="Fecha" />
