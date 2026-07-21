@@ -58,6 +58,20 @@
   height: 2.5rem;
 }
 
+/* El boton de icono del Calendar (showIcon) es un <Button> real de
+   PrimeReact: sin esto conserva su padding/altura por defecto (mayor que
+   2.5rem) y sobresale por debajo del input de fecha, aunque el input ya
+   este forzado a esa altura. Mismo problema que el Dropdown de arriba. */
+.orden-form-header-grid .p-calendar .p-datepicker-trigger {
+  height: 2.5rem;
+  width: 2.5rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
 .orden-form-observaciones {
   margin-top: var(--np-space-md);
 }
@@ -86,7 +100,7 @@
 .orden-form-pedido-helisa {
   display: flex;
   gap: 0.5rem;
-  align-items: flex-start;
+  align-items: center;
 }
 
 /* Sin esto, el boton se encogia junto con el input y su label "Buscar
@@ -96,7 +110,15 @@
   min-width: 0;
 }
 
+/* El <Button> "Buscar Pedido" conserva su padding por defecto (mayor que
+   2.5rem) si no se fija: mismo problema que el boton de icono del
+   Calendar de arriba. */
 .orden-form-pedido-helisa .p-button {
+  height: 2.5rem;
+  padding-top: 0;
+  padding-bottom: 0;
+  display: inline-flex;
+  align-items: center;
   flex-shrink: 0;
   white-space: nowrap;
 }
