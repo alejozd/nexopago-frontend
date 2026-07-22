@@ -30,3 +30,7 @@ export interface UsuarioUpdateDTO {
   correoElectronico: string | null;
   perfilIds: number[];
 }
+
+export interface CambiarPasswordDTO {
+  password: string;
+}

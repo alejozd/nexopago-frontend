@@ -14,6 +14,7 @@ import { useCambiarEstadoUsuario } from '../../hooks/usuarios/useCambiarEstadoUs
 import { KpiCard } from '../../components/common/KpiCard';
 import { RowActions } from '../../components/common/RowActions';
 import { UsuarioFormDialog } from './UsuarioFormDialog';
+import { CambiarPasswordDialog } from './CambiarPasswordDialog';
 import { formatDate } from '../../utils/formatters';
 import type { UsuarioListItem } from '../../types/usuario.types';
 import type { PagedParams } from '../../types/common.types';
@@ -27,6 +28,7 @@ export function UsuariosPage() {
   const [searchInput, setSearchInput] = useState('');
   const [dialogVisible, setDialogVisible] = useState(false);
   const [editingUsuario, setEditingUsuario] = useState<UsuarioListItem | null>(null);
+  const [usuarioParaPassword, setUsuarioParaPassword] = useState<UsuarioListItem | null>(null);
   const { data, isLoading } = useUsuariosQuery(params);
   const { data: resumen } = useUsuariosResumenQuery();
   const cambiarEstadoMutation = useCambiarEstadoUsuario();
@@ -166,6 +168,12 @@ export function UsuariosPage() {
                     onClick: () => openEditDialog(row),
                   },
                   {
+                    icon: 'pi pi-key',
+                    tooltip: 'Cambiar Contraseña',
+                    severity: 'secondary',
+                    onClick: () => setUsuarioParaPassword(row),
+                  },
+                  {
                     icon: 'pi pi-sync',
                     tooltip: row.activo ? 'Inactivar' : 'Activar',
                     severity: row.activo ? 'warning' : 'success',
@@ -180,6 +188,11 @@ export function UsuariosPage() {
       </Card>
 
       <UsuarioFormDialog visible={dialogVisible} usuario={editingUsuario} onHide={() => setDialogVisible(false)} />
+      <CambiarPasswordDialog
+        visible={usuarioParaPassword !== null}
+        usuario={usuarioParaPassword}
+        onHide={() => setUsuarioParaPassword(null)}
+      />
     </div>
   );
 }
