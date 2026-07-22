@@ -19,6 +19,10 @@
 
 .app-sidebar.collapsed {
   width: 64px;
+  /* El estado expandido necesita overflow:hidden para el acordeon in-place;
+     colapsado necesita lo contrario, para que el flyout de cada grupo pueda
+     salir del riel de 64px hacia la derecha. */
+  overflow: visible;
 }
 
 .app-sidebar-brand {
@@ -90,6 +94,120 @@
   border-left-color: #fff;
   color: #fff;
   font-weight: 600;
+}
+
+/* Grupos del sidebar (Chipis/Fondo/Presupuesto/Administracion): mismo
+   taxonomia que ya existe como MODULO en /permisos. */
+.app-sidebar-grupo {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.app-sidebar-grupo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  border-radius: var(--np-radius-control);
+  color: var(--np-sidebar-text);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  text-align: left;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.app-sidebar-grupo-header:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.app-sidebar-grupo-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.app-sidebar-grupo-left .pi {
+  font-size: 0.95rem;
+  width: 1rem;
+  text-align: center;
+}
+
+.app-sidebar-grupo-chevron {
+  font-size: 0.68rem;
+  opacity: 0.7;
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.app-sidebar-grupo-chevron.expanded {
+  transform: rotate(90deg);
+}
+
+.app-sidebar-grupo-body {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0.15rem 0 0.15rem 1.15rem;
+  padding-left: 0.4rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.app-sidebar-grupo-body.collapsed-body {
+  display: none;
+}
+
+.app-sidebar-sublink {
+  font-size: 0.82rem;
+  padding-left: 0.85rem;
+}
+
+/* Modo colapsado (riel de 64px): el grupo deja de ser acordeon y se
+   convierte en un panel flotante al pasar el mouse o al enfocar con
+   teclado -- mismo patron que VSCode/Slack para navegacion por secciones. */
+.app-sidebar.collapsed .app-sidebar-grupo-body {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  margin: 0;
+  padding: 0.5rem;
+  min-width: 13rem;
+  background: var(--np-surface);
+  border: 1px solid var(--np-line);
+  border-radius: var(--np-radius-card);
+  box-shadow: var(--np-shadow-card-hover);
+  z-index: 30;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-6px);
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0.12s;
+}
+
+.app-sidebar.collapsed .app-sidebar-grupo:hover .app-sidebar-grupo-body,
+.app-sidebar.collapsed .app-sidebar-grupo:focus-within .app-sidebar-grupo-body {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+.app-sidebar.collapsed .app-sidebar-grupo-body .app-sidebar-link {
+  color: var(--np-text-body);
+  border-left-color: transparent;
+}
+
+.app-sidebar.collapsed .app-sidebar-grupo-body .app-sidebar-link:hover {
+  background: var(--np-content-bg);
+  color: var(--np-ink);
 }
 
 .app-layout-main {

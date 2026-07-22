@@ -32,6 +32,8 @@ const MODULO_LABELS: Record<string, string> = {
   ADMINISTRACION: 'Administración',
   CHIPIS: 'Chipis',
   CONFIGURACION: 'Configuración',
+  FONDO: 'Fondo',
+  PRESUPUESTO: 'Presupuesto',
 };
 
 const MODULO_VISUAL: Record<string, ModuloVisual> = {
@@ -52,6 +54,22 @@ const MODULO_VISUAL: Record<string, ModuloVisual> = {
     colorVar: '--np-neutral',
     softVar: '--np-neutral-bg',
     descripcion: 'Ajustes generales de la empresa activa.',
+  },
+  // Modulos futuros (sin pantallas propias todavia): mismo registro neutro
+  // que Configuracion a proposito -- no se les asigna un color de marca
+  // definitivo hasta que cada uno tenga diseno real, para no comprometer
+  // una identidad visual que probablemente cambie.
+  FONDO: {
+    icono: 'pi pi-wallet',
+    colorVar: '--np-neutral',
+    softVar: '--np-neutral-bg',
+    descripcion: 'Módulo en preparación — aún sin pantallas propias.',
+  },
+  PRESUPUESTO: {
+    icono: 'pi pi-chart-pie',
+    colorVar: '--np-neutral',
+    softVar: '--np-neutral-bg',
+    descripcion: 'Módulo en preparación — aún sin pantallas propias.',
   },
 };
 

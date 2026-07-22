@@ -14,6 +14,7 @@ import { PermisosPage } from '../pages/permisos/PermisosPage';
 import { ReportesCarteraPage } from '../pages/reportes/ReportesCarteraPage';
 import { EmpresaActivaPage } from '../pages/empresaActiva/EmpresaActivaPage';
 import { AccesoDenegadoPage } from '../pages/error/AccesoDenegadoPage';
+import { ProximamentePage } from '../pages/comun/ProximamentePage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { PermisoRoute } from './PermisoRoute';
 
@@ -60,6 +61,32 @@ export function AppRouter() {
 
           <Route element={<PermisoRoute requiredPermiso="ADMINISTRACION:PERMISOS_LEER" />}>
             <Route path="/permisos" element={<PermisosPage />} />
+          </Route>
+
+          <Route element={<PermisoRoute requiredPermiso="FONDO:FONDO_LEER" />}>
+            <Route
+              path="/fondo"
+              element={
+                <ProximamentePage
+                  titulo="Fondo"
+                  icono="pi pi-money-bill"
+                  descripcion="El módulo Fondo todavía está en preparación. El permiso ya se puede asignar desde /permisos, pero la pantalla llega en una fase futura."
+                />
+              }
+            />
+          </Route>
+
+          <Route element={<PermisoRoute requiredPermiso="PRESUPUESTO:PRESUPUESTO_LEER" />}>
+            <Route
+              path="/presupuesto"
+              element={
+                <ProximamentePage
+                  titulo="Presupuesto"
+                  icono="pi pi-chart-pie"
+                  descripcion="El módulo Presupuesto todavía está en preparación. El permiso ya se puede asignar desde /permisos, pero la pantalla llega en una fase futura."
+                />
+              }
+            />
           </Route>
 
           <Route element={<PermisoRoute requiredPermiso="CONFIGURACION:CAMBIAR_EMPRESA" />}>
