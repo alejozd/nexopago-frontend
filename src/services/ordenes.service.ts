@@ -7,7 +7,9 @@ import type {
   OrdenesResumen,
   OrdenListItem,
   OrdenPendienteRecepcion,
+  OrdenPendientePago,
   OrdenRecepcion,
+  OrdenSaldo,
 } from '../types/orden.types';
 
 export async function getOrdenes(params: PagedParams): Promise<PagedResult<OrdenListItem>> {
@@ -60,5 +62,18 @@ export async function getOrdenesPendientesRecepcion(
 
 export async function getOrdenDetalleRecepcion(id: number): Promise<OrdenRecepcion> {
   const response = await axiosClient.get<OrdenRecepcion>(`/ordenes/${id}/detalle-recepcion`);
+  return response.data;
+}
+
+// Endpoints angostos para el flujo de "solo Recibos de Caja" (perfiles con
+// CHIPIS:RECIBOS_* pero sin CHIPIS:ORDENES_LEER): sin datos financieros
+// completos ni lineas de producto.
+export async function getOrdenesPendientesPago(params: PagedParams): Promise<PagedResult<OrdenPendientePago>> {
+  const response = await axiosClient.get<PagedResult<OrdenPendientePago>>('/ordenes/pendientes-pago', { params });
+  return response.data;
+}
+
+export async function getOrdenSaldo(id: number): Promise<OrdenSaldo> {
+  const response = await axiosClient.get<OrdenSaldo>(`/ordenes/${id}/detalle-saldo`);
   return response.data;
 }

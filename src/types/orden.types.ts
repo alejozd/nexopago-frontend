@@ -108,3 +108,23 @@ export interface OrdenRecepcion {
   numeroOrden: string;
   detalles: OrdenRecepcionLinea[];
 }
+
+// Version angosta de OrdenListItem para el flujo de "solo Recibos de Caja"
+// (perfiles con CHIPIS:RECIBOS_* pero sin CHIPIS:ORDENES_LEER): sin
+// valorTotal ni datos financieros. Ver GET /ordenes/pendientes-pago.
+export interface OrdenPendientePago {
+  id: number;
+  numeroOrden: string;
+  proveedorNombre: string;
+  fechaOrden: string;
+  estado: OrdenEstado;
+}
+
+// Version angosta de OrdenDetalle para el mismo flujo: solo los montos
+// necesarios para calcular Saldo Antes/Despues en ReciboFormDialog.
+// Ver GET /ordenes/:id/detalle-saldo.
+export interface OrdenSaldo {
+  valorTotal: number;
+  montoPagado: number;
+  saldoPendiente: number;
+}

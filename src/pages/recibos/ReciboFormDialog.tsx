@@ -10,8 +10,8 @@ import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Divider } from 'primereact/divider';
 import { Button } from 'primereact/button';
-import { useOrdenesQuery } from '../../hooks/ordenes/useOrdenesQuery';
-import { useOrdenDetalleQuery } from '../../hooks/ordenes/useOrdenDetalleQuery';
+import { useOrdenesPendientesPagoQuery } from '../../hooks/ordenes/useOrdenesPendientesPagoQuery';
+import { useOrdenSaldoQuery } from '../../hooks/ordenes/useOrdenSaldoQuery';
 import { useCreateRecibo } from '../../hooks/recibos/useCreateRecibo';
 import { formatCurrency } from '../../utils/formatters';
 import '../../assets/styles/recibos.css';
@@ -31,7 +31,7 @@ interface ReciboFormDialogProps {
 }
 
 export function ReciboFormDialog({ visible, onHide }: ReciboFormDialogProps) {
-  const { data: ordenesData } = useOrdenesQuery({ page: 1, rows: 100 });
+  const { data: ordenesData } = useOrdenesPendientesPagoQuery({ page: 1, rows: 100 }, visible);
   const createMutation = useCreateRecibo();
 
   const {
@@ -54,9 +54,9 @@ export function ReciboFormDialog({ visible, onHide }: ReciboFormDialogProps) {
 
   const ordenId = watch('ordenId');
   const monto = watch('monto');
-  const { data: ordenDetalle } = useOrdenDetalleQuery(ordenId > 0 ? ordenId : undefined);
+  const { data: ordenDetalle } = useOrdenSaldoQuery(ordenId > 0 ? ordenId : undefined);
 
-  const ordenesDisponibles = (ordenesData?.data ?? []).filter((o) => o.estado !== 'ANULADA');
+  const ordenesDisponibles = ordenesData?.data ?? [];
   const saldoAntes = ordenDetalle?.saldoPendiente ?? 0;
   const saldoDespues = Math.max(0, saldoAntes - (monto || 0));
 
