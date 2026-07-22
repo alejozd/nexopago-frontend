@@ -31,5 +31,5 @@ export interface PermisoMatrizItem {
   moduloNombre: string;
   accion: string;
   asignado: boolean;
-  requierePermisoId: number | null;
+  requierePermisoIds: number[];
 }

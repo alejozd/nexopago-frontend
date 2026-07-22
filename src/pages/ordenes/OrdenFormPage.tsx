@@ -21,6 +21,8 @@ import { useCreateOrden } from '../../hooks/ordenes/useCreateOrden';
 import { useUpdateOrden } from '../../hooks/ordenes/useUpdateOrden';
 import { useOrdenDetalleQuery } from '../../hooks/ordenes/useOrdenDetalleQuery';
 import { getProductos } from '../../services/productos.service';
+import { useAuthStore } from '../../store/authStore';
+import { hasPermiso } from '../../utils/permisos';
 import { formatCurrency } from '../../utils/formatters';
 import { BuscarPedidoHelisaDialog } from './BuscarPedidoHelisaDialog';
 import type { Producto } from '../../types/producto.types';
@@ -101,8 +103,19 @@ export function OrdenFormPage() {
   const isEditMode = id !== undefined;
   const ordenId = isEditMode ? Number(id) : undefined;
 
+  const usuario = useAuthStore((state) => state.usuario);
+  // Guarda defensiva: con la expansion automatica de dependencias en el
+  // backend (ver PermisosPage), cualquier perfil que llegue aca deberia
+  // tener siempre estos dos permisos. Pero perfiles creados/editados ANTES
+  // de esa expansion pueden quedar inconsistentes -- sin este gate, el
+  // formulario dispara las queries de Proveedores/Productos igual y el
+  // usuario recibe un toast generico de "Authorization Forbidden" en vez de
+  // un mensaje claro.
+  const puedeCrearOrden =
+    hasPermiso(usuario?.permisos, 'CHIPIS:PROVEEDORES_LEER') && hasPermiso(usuario?.permisos, 'CHIPIS:PRODUCTOS_LEER');
+
   const { data: orden, isLoading: isLoadingOrden } = useOrdenDetalleQuery(ordenId);
-  const { data: proveedoresData } = useProveedoresQuery({ page: 1, rows: 100 });
+  const { data: proveedoresData } = useProveedoresQuery({ page: 1, rows: 100 }, puedeCrearOrden);
   const createMutation = useCreateOrden();
   const updateMutation = useUpdateOrden();
   const mutation = isEditMode ? updateMutation : createMutation;
@@ -244,6 +257,18 @@ export function OrdenFormPage() {
   };
 
   const totalOrden = lineas.reduce((sum, linea) => sum + linea.cantidad * linea.precioUnitario, 0);
+
+  if (!puedeCrearOrden) {
+    return (
+      <Card title="Permisos insuficientes">
+        <p>
+          Tu perfil no tiene los permisos necesarios (Proveedores y Productos) para crear o editar órdenes. Contacta
+          a un administrador.
+        </p>
+        <Button label="Volver a Órdenes" icon="pi pi-arrow-left" text onClick={() => navigate('/ordenes')} />
+      </Card>
+    );
+  }
 
   if (isEditMode && isLoadingOrden) {
     return <ProgressSpinner />;

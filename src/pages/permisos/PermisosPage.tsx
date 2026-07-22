@@ -50,8 +50,8 @@ export function PermisosPage() {
   const bloqueadosPorDependencia = useMemo(() => {
     const requeridos = new Set<number>();
     (matriz ?? []).forEach((item) => {
-      if (item.requierePermisoId != null && seleccionados.has(item.permisoId)) {
-        requeridos.add(item.requierePermisoId);
+      if (seleccionados.has(item.permisoId)) {
+        item.requierePermisoIds.forEach((id) => requeridos.add(id));
       }
     });
     return requeridos;
@@ -67,9 +67,7 @@ export function PermisosPage() {
         next.delete(item.permisoId);
       } else {
         next.add(item.permisoId);
-        if (item.requierePermisoId != null) {
-          next.add(item.requierePermisoId); // marca tambien el requerido
-        }
+        item.requierePermisoIds.forEach((id) => next.add(id)); // marca tambien los requeridos
       }
       return next;
     });
