@@ -47,13 +47,29 @@ export function PermisosPage() {
     return Array.from(grupos.entries()).sort(([a], [b]) => a.localeCompare(b));
   }, [matriz]);
 
-  const toggle = (permisoId: number) => {
+  const bloqueadosPorDependencia = useMemo(() => {
+    const requeridos = new Set<number>();
+    (matriz ?? []).forEach((item) => {
+      if (item.requierePermisoId != null && seleccionados.has(item.permisoId)) {
+        requeridos.add(item.requierePermisoId);
+      }
+    });
+    return requeridos;
+  }, [matriz, seleccionados]);
+
+  const toggle = (item: PermisoMatrizItem) => {
     setSeleccionados((prev) => {
       const next = new Set(prev);
-      if (next.has(permisoId)) {
-        next.delete(permisoId);
+      if (next.has(item.permisoId)) {
+        if (bloqueadosPorDependencia.has(item.permisoId)) {
+          return prev; // bloqueado: hay que desmarcar antes lo que depende de este
+        }
+        next.delete(item.permisoId);
       } else {
-        next.add(permisoId);
+        next.add(item.permisoId);
+        if (item.requierePermisoId != null) {
+          next.add(item.requierePermisoId); // marca tambien el requerido
+        }
       }
       return next;
     });
@@ -130,15 +146,25 @@ export function PermisosPage() {
                   <div key={moduloNombre} className="permisos-modulo-card">
                     <h3 className="permisos-modulo-titulo">{moduloNombre}</h3>
                     <div className="permisos-modulo-items">
-                      {items.map((item) => (
-                        <label key={item.permisoId} className="permisos-item">
-                          <Checkbox
-                            checked={seleccionados.has(item.permisoId)}
-                            onChange={() => toggle(item.permisoId)}
-                          />
-                          <span>{formatAccion(item)}</span>
-                        </label>
-                      ))}
+                      {items.map((item) => {
+                        const bloqueado = bloqueadosPorDependencia.has(item.permisoId);
+                        return (
+                          <label key={item.permisoId} className="permisos-item">
+                            <Checkbox
+                              checked={seleccionados.has(item.permisoId)}
+                              disabled={bloqueado}
+                              onChange={() => toggle(item)}
+                            />
+                            <span>{formatAccion(item)}</span>
+                            {bloqueado && (
+                              <i
+                                className="pi pi-lock permisos-item-requerido-icono"
+                                title="Requerido por otro permiso marcado en este perfil"
+                              />
+                            )}
+                          </label>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
