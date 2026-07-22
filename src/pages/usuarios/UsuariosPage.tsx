@@ -16,6 +16,8 @@ import { RowActions } from '../../components/common/RowActions';
 import { UsuarioFormDialog } from './UsuarioFormDialog';
 import { CambiarPasswordDialog } from './CambiarPasswordDialog';
 import { formatDate } from '../../utils/formatters';
+import { useAuthStore } from '../../store/authStore';
+import { hasPermiso } from '../../utils/permisos';
 import type { UsuarioListItem } from '../../types/usuario.types';
 import type { PagedParams } from '../../types/common.types';
 import '../../assets/styles/usuarios.css';
@@ -32,6 +34,12 @@ export function UsuariosPage() {
   const { data, isLoading } = useUsuariosQuery(params);
   const { data: resumen } = useUsuariosResumenQuery();
   const cambiarEstadoMutation = useCambiarEstadoUsuario();
+
+  const usuario = useAuthStore((state) => state.usuario);
+  // Permiso propio, no USUARIOS_EDITAR: resetear la clave de otro usuario es
+  // mas sensible que editar sus datos basicos (ver
+  // NexoPago.Controllers.Usuarios.CambiarPassword en el backend).
+  const puedeCambiarPassword = hasPermiso(usuario?.permisos, 'ADMINISTRACION:USUARIOS_PASSWORD');
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -167,12 +175,16 @@ export function UsuariosPage() {
                     severity: 'info',
                     onClick: () => openEditDialog(row),
                   },
-                  {
-                    icon: 'pi pi-key',
-                    tooltip: 'Cambiar Contraseña',
-                    severity: 'secondary',
-                    onClick: () => setUsuarioParaPassword(row),
-                  },
+                  ...(puedeCambiarPassword
+                    ? [
+                        {
+                          icon: 'pi pi-key',
+                          tooltip: 'Cambiar Contraseña',
+                          severity: 'secondary' as const,
+                          onClick: () => setUsuarioParaPassword(row),
+                        },
+                      ]
+                    : []),
                   {
                     icon: 'pi pi-sync',
                     tooltip: row.activo ? 'Inactivar' : 'Activar',
