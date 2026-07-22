@@ -4,6 +4,31 @@
   gap: var(--np-space-lg);
 }
 
+.permisos-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.permisos-titulo {
+  font-family: var(--np-font-display);
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: var(--np-text-title);
+  margin: 0;
+}
+
+.permisos-subtitulo {
+  color: var(--np-text-muted);
+  font-size: 0.88rem;
+  margin: 0;
+}
+
+.permisos-selector-card :where(.p-card-body, .p-card-content) {
+  padding-top: var(--np-space-md);
+  padding-bottom: var(--np-space-md);
+}
+
 .permisos-selector-row {
   display: flex;
   align-items: flex-end;
@@ -17,66 +42,163 @@
   min-width: 16rem;
 }
 
+.permisos-selector-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.82rem;
+  margin-bottom: 0.35rem;
+}
+
 .permisos-selector-actions {
   display: flex;
   gap: 0.5rem;
 }
 
-.permisos-matriz-info {
+.permisos-toolbar {
   display: flex;
-  width: 100%;
-  margin-bottom: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
-.permisos-matriz-toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 0.75rem;
+.permisos-toolbar-titulo {
+  font-family: var(--np-font-display);
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--np-text-title);
+  margin: 0;
 }
 
-.permisos-matriz-check {
+.permisos-info-nota {
   display: flex;
-  justify-content: center;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background: var(--np-teal-soft);
+  color: var(--np-teal);
+  border: 1px solid color-mix(in srgb, var(--np-teal) 30%, white);
+  border-radius: var(--np-radius-control);
+  padding: 0.7rem 1rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.permisos-info-nota i {
+  margin-top: 0.15rem;
+  flex-shrink: 0;
 }
 
 .permisos-modulos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
   gap: var(--np-space-md);
+  align-items: stretch;
 }
 
 .permisos-modulo-card {
   border: 1px solid var(--np-border);
+  border-top: 4px solid var(--modulo-color, var(--np-sello));
   border-radius: var(--np-radius-card);
-  padding: var(--np-space-md);
-  background: var(--np-paper);
+  background: var(--np-surface);
+  box-shadow: var(--np-shadow-card);
+  display: flex;
+  flex-direction: column;
+}
+
+.permisos-modulo-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem 0.85rem;
+  border-bottom: 1px solid var(--np-border);
+}
+
+.permisos-modulo-icono {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: var(--np-radius-control);
+  background: var(--modulo-soft, var(--np-sello-soft));
+  color: var(--modulo-color, var(--np-sello));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.05rem;
+}
+
+.permisos-modulo-titulo-bloque {
+  flex: 1;
+  min-width: 0;
 }
 
 .permisos-modulo-titulo {
-  margin: 0 0 0.6rem 0;
-  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-weight: 700;
+  font-size: 0.98rem;
   color: var(--np-text-title);
-  text-transform: capitalize;
+}
+
+.permisos-modulo-contador {
+  font-family: var(--np-font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--modulo-color, var(--np-sello));
+  background: var(--modulo-soft, var(--np-sello-soft));
+  border-radius: var(--np-radius-pill);
+  padding: 0.1rem 0.5rem;
+}
+
+.permisos-modulo-desc {
+  font-size: 0.78rem;
+  color: var(--np-text-muted);
+  margin-top: 0.2rem;
+  line-height: 1.4;
 }
 
 .permisos-modulo-items {
+  padding: 0.4rem 0.5rem 0.7rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
 }
 
 .permisos-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--np-radius-control);
+}
+
+.permisos-item:hover {
+  background: var(--np-paper);
+}
+
+.permisos-item-label {
+  flex: 1;
+  font-size: 0.86rem;
   text-transform: capitalize;
-  font-size: 0.88rem;
 }
 
 .permisos-item-requerido-icono {
   font-size: 0.75rem;
   color: var(--np-text-muted);
   margin-left: 0.25rem;
+}
+
+.permisos-footer-nota {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  text-align: center;
+  padding-top: 1.1rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--np-border);
+  font-size: 0.82rem;
+  color: var(--np-text-muted);
 }
