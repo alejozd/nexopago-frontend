@@ -12,6 +12,13 @@
   background-color: var(--np-content-bg) !important;
 }
 
+/* Fila elegida en BuscarOrdenPendienteDialog (seleccion por click, sin el
+   selectionMode nativo de PrimeReact: ver rowClassName en el dialogo). */
+.entradas-row-seleccionada {
+  background-color: var(--np-content-bg) !important;
+  box-shadow: inset 3px 0 0 var(--np-sello);
+}
+
 .entradas-header {
   display: flex;
   align-items: center;
@@ -28,7 +35,27 @@
   color: var(--np-text-title);
 }
 
+.entradas-header-acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .entradas-search {
   width: 20rem;
   max-width: 100%;
+}
+
+.buscar-orden-pendiente-subtitle {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: var(--np-text-muted);
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }

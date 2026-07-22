@@ -11,7 +11,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { ProgressSpinner } from 'primereact/progressspinner';
-import { useOrdenDetalleQuery } from '../../hooks/ordenes/useOrdenDetalleQuery';
+import { useOrdenDetalleRecepcionQuery } from '../../hooks/ordenes/useOrdenDetalleRecepcionQuery';
 import { useCreateEntrada } from '../../hooks/entradas/useCreateEntrada';
 import type { EntradaLineaCreateDTO } from '../../types/entrada.types';
 import '../../assets/styles/ordenes.css';
@@ -42,7 +42,7 @@ interface EntradaFormDialogProps {
 }
 
 export function EntradaFormDialog({ visible, ordenId, onHide }: EntradaFormDialogProps) {
-  const { data: orden, isLoading: isLoadingOrden } = useOrdenDetalleQuery(visible ? (ordenId ?? undefined) : undefined);
+  const { data: orden, isLoading: isLoadingOrden } = useOrdenDetalleRecepcionQuery(visible ? (ordenId ?? undefined) : undefined);
   const createMutation = useCreateEntrada();
 
   const [lineas, setLineas] = useState<LineaEntradaForm[]>([]);

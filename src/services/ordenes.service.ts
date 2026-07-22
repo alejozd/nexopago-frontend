@@ -6,6 +6,8 @@ import type {
   OrdenEstadoDocumentos,
   OrdenesResumen,
   OrdenListItem,
+  OrdenPendienteRecepcion,
+  OrdenRecepcion,
 } from '../types/orden.types';
 
 export async function getOrdenes(params: PagedParams): Promise<PagedResult<OrdenListItem>> {
@@ -42,4 +44,21 @@ export async function updateOrden(id: number, dto: OrdenCreateDTO): Promise<void
 
 export async function anularOrden(id: number, motivo: string): Promise<void> {
   await axiosClient.put(`/ordenes/${id}/anular`, null, { params: { motivo } });
+}
+
+// Endpoints angostos para el flujo de "solo registrar entradas" (perfiles con
+// CHIPIS:ENTRADAS_REGISTRAR pero sin CHIPIS:ORDENES_LEER): sin datos
+// financieros ni de proveedor mas alla del nombre.
+export async function getOrdenesPendientesRecepcion(
+  params: PagedParams,
+): Promise<PagedResult<OrdenPendienteRecepcion>> {
+  const response = await axiosClient.get<PagedResult<OrdenPendienteRecepcion>>('/ordenes/pendientes-recepcion', {
+    params,
+  });
+  return response.data;
+}
+
+export async function getOrdenDetalleRecepcion(id: number): Promise<OrdenRecepcion> {
+  const response = await axiosClient.get<OrdenRecepcion>(`/ordenes/${id}/detalle-recepcion`);
+  return response.data;
 }

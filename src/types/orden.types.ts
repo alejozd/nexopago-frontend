@@ -81,3 +81,30 @@ export interface OrdenCreateDTO {
   solicitud: string | null;
   detalles: OrdenLineaCreateDTO[];
 }
+
+// Version angosta de OrdenListItem para el flujo de "solo registrar entradas"
+// (perfiles con CHIPIS:ENTRADAS_REGISTRAR pero sin CHIPIS:ORDENES_LEER): sin
+// valorTotal ni datos financieros. Ver GET /ordenes/pendientes-recepcion.
+export interface OrdenPendienteRecepcion {
+  id: number;
+  numeroOrden: string;
+  proveedorNombre: string;
+  fechaOrden: string;
+  estado: OrdenEstado;
+}
+
+// Version angosta de OrdenLinea para el mismo flujo: sin precios/subtotal.
+// Ver GET /ordenes/:id/detalle-recepcion.
+export interface OrdenRecepcionLinea {
+  id: number;
+  productoDescripcion: string;
+  productoCodigoInterno: string | null;
+  saldoPendiente: number;
+}
+
+// Version angosta de OrdenDetalle para el mismo flujo: sin proveedor/montos/
+// observaciones, solo lo necesario para EntradaFormDialog.
+export interface OrdenRecepcion {
+  numeroOrden: string;
+  detalles: OrdenRecepcionLinea[];
+}
