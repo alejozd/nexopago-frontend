@@ -1,15 +1,14 @@
 import { NavLink } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
+import { hasPermiso } from '../../utils/permisos';
 import { menuConfig } from './menuConfig';
 
 export function Sidebar() {
   const collapsed = useUiStore((state) => state.sidebarCollapsed);
-  const roles = useAuthStore((state) => state.usuario?.roles);
+  const permisos = useAuthStore((state) => state.usuario?.permisos);
 
-  const visibleItems = menuConfig.filter(
-    (item) => !item.roles || item.roles.some((role) => roles?.includes(role)),
-  );
+  const visibleItems = menuConfig.filter((item) => hasPermiso(permisos, item.requiredPermiso));
 
   return (
     <aside className={`app-sidebar${collapsed ? ' collapsed' : ''}`}>

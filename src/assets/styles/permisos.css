@@ -4,8 +4,22 @@
   gap: var(--np-space-lg);
 }
 
+.permisos-selector-row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--np-space-md);
+  flex-wrap: wrap;
+}
+
 .permisos-selector {
   max-width: 22rem;
+  flex: 1;
+  min-width: 16rem;
+}
+
+.permisos-selector-actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .permisos-matriz-info {
@@ -23,4 +37,40 @@
 .permisos-matriz-check {
   display: flex;
   justify-content: center;
+}
+
+.permisos-modulos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: var(--np-space-md);
+}
+
+.permisos-modulo-card {
+  border: 1px solid var(--np-border);
+  border-radius: var(--np-radius-card);
+  padding: var(--np-space-md);
+  background: var(--np-paper);
+}
+
+.permisos-modulo-titulo {
+  margin: 0 0 0.6rem 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--np-text-title);
+  text-transform: capitalize;
+}
+
+.permisos-modulo-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.permisos-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  text-transform: capitalize;
+  font-size: 0.88rem;
 }

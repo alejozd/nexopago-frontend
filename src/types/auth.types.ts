@@ -13,4 +13,5 @@ export interface UsuarioMe {
   nombre: string;
   apellido: string;
   roles: string[];
+  permisos: string[];
 }

@@ -12,6 +12,7 @@ import { useAuthStore } from '../../store/authStore';
 import { StatusTag } from '../../components/common/StatusTag';
 import { KpiCard } from '../../components/common/KpiCard';
 import { formatCurrency, formatCurrencyCompact, formatDate, formatMonthPeriod } from '../../utils/formatters';
+import { hasPermiso } from '../../utils/permisos';
 import type { ReciboCaja } from '../../types/recibo.types';
 import '../../assets/styles/dashboard.css';
 
@@ -50,8 +51,9 @@ function colorMesHex(indice: number, total: number, ajusteLuminosidad = 0): stri
 
 export function DashboardPage() {
   const usuario = useAuthStore((state) => state.usuario);
+  const puedeVerRecibos = hasPermiso(usuario?.permisos, 'CHIPIS:RECIBOS_LEER');
   const { data: dashboard, isLoading, isError } = useDashboardQuery();
-  const { data: ultimosRecibos, isLoading: isLoadingRecibos } = useUltimosRecibosQuery();
+  const { data: ultimosRecibos, isLoading: isLoadingRecibos } = useUltimosRecibosQuery(puedeVerRecibos);
 
   if (isLoading) {
     return <ProgressSpinner />;
@@ -326,15 +328,17 @@ export function DashboardPage() {
         </Card>
       </div>
 
-      <Card title="Últimos recibos de caja">
-        <DataTable value={ultimosRecibos?.data ?? []} loading={isLoadingRecibos} stripedRows size="small">
-          <Column field="numeroRecibo" header="ID" />
-          <Column field="proveedorNombre" header="Proveedor" />
-          <Column field="fechaRecibo" header="Fecha" body={(row: ReciboCaja) => formatDate(row.fechaRecibo)} />
-          <Column field="estado" header="Estado" body={(row: ReciboCaja) => <StatusTag status={row.estado} />} />
-          <Column field="monto" header="Valor" body={(row: ReciboCaja) => formatCurrency(row.monto)} />
-        </DataTable>
-      </Card>
+      {puedeVerRecibos && (
+        <Card title="Últimos recibos de caja">
+          <DataTable value={ultimosRecibos?.data ?? []} loading={isLoadingRecibos} stripedRows size="small">
+            <Column field="numeroRecibo" header="ID" />
+            <Column field="proveedorNombre" header="Proveedor" />
+            <Column field="fechaRecibo" header="Fecha" body={(row: ReciboCaja) => formatDate(row.fechaRecibo)} />
+            <Column field="estado" header="Estado" body={(row: ReciboCaja) => <StatusTag status={row.estado} />} />
+            <Column field="monto" header="Valor" body={(row: ReciboCaja) => formatCurrency(row.monto)} />
+          </DataTable>
+        </Card>
+      )}
     </div>
   );
 }

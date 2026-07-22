@@ -11,6 +11,11 @@ export interface Perfil {
   descripcion: string | null;
 }
 
+export interface PerfilCreateDTO {
+  nombre: string;
+  descripcion: string | null;
+}
+
 export interface Permiso {
   id: number;
   moduloId: number;

@@ -7,13 +7,13 @@ import { getEntradas } from '../../services/entradas.service';
 // una entrada por orden (entregas parciales: el backend solo bloquea una
 // nueva entrada si la orden ya quedo RECIBIDA por completo, ver
 // TEntradasMercanciaService.RegistrarEntrada), asi que se retornan todas.
-export function useEntradasDeOrdenQuery(ordenId: number | undefined) {
+export function useEntradasDeOrdenQuery(ordenId: number | undefined, habilitado = true) {
   return useQuery({
     queryKey: ['entradas', 'por-orden', ordenId],
     queryFn: async () => {
       const result = await getEntradas({ page: 1, rows: 500, sortField: 'fechaEntrada', sortOrder: -1 });
       return result.data.filter((entrada) => entrada.ordenId === ordenId);
     },
-    enabled: ordenId !== undefined,
+    enabled: ordenId !== undefined && habilitado,
   });
 }

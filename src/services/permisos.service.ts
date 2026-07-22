@@ -1,6 +1,6 @@
 import { axiosClient } from '../api/axiosClient';
 import type { PagedParams, PagedResult } from '../types/common.types';
-import type { Modulo, Perfil, Permiso, PermisoMatrizItem } from '../types/permiso.types';
+import type { Modulo, Perfil, PerfilCreateDTO, Permiso, PermisoMatrizItem } from '../types/permiso.types';
 
 export async function getModulos(params: PagedParams): Promise<PagedResult<Modulo>> {
   const response = await axiosClient.get<PagedResult<Modulo>>('/modulos', { params });
@@ -25,4 +25,12 @@ export async function getMatriz(perfilId: number): Promise<PermisoMatrizItem[]> 
 
 export async function asignarPermisos(perfilId: number, permisoIds: number[]): Promise<void> {
   await axiosClient.put(`/perfiles/${perfilId}/permisos`, { permisoIds });
+}
+
+export async function createPerfil(dto: PerfilCreateDTO): Promise<void> {
+  await axiosClient.post('/perfiles', dto);
+}
+
+export async function updatePerfil(id: number, dto: PerfilCreateDTO): Promise<void> {
+  await axiosClient.put(`/perfiles/${id}`, dto);
 }

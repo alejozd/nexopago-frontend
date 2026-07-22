@@ -13,9 +13,11 @@ import { useOrdenDetalleQuery } from '../../hooks/ordenes/useOrdenDetalleQuery';
 import { useRecibosDeOrdenQuery } from '../../hooks/ordenes/useRecibosDeOrdenQuery';
 import { useEntradasDeOrdenQuery } from '../../hooks/ordenes/useEntradasDeOrdenQuery';
 import { useAnularOrden } from '../../hooks/ordenes/useAnularOrden';
+import { useAuthStore } from '../../store/authStore';
 import { StatusTag } from '../../components/common/StatusTag';
 import { EntradaFormDialog } from './EntradaFormDialog';
 import { formatCurrency, formatDate } from '../../utils/formatters';
+import { hasPermiso } from '../../utils/permisos';
 import type { OrdenDetalle, OrdenEstado, OrdenLinea } from '../../types/orden.types';
 import type { ReciboCaja } from '../../types/recibo.types';
 import type { EntradaMercancia } from '../../types/entrada.types';
@@ -125,6 +127,8 @@ function construirTimeline(
   entradas: EntradaMercancia[],
   recibos: ReciboCaja[],
   porcentajePagado: number,
+  puedeVerEntradas: boolean,
+  puedeVerRecibos: boolean,
 ): TimelineEvent[] {
   const events: TimelineEvent[] = [
     {
@@ -138,7 +142,15 @@ function construirTimeline(
     },
   ];
 
-  if (entradas.length > 0) {
+  if (!puedeVerEntradas) {
+    events.push({
+      status: 'Entrada de Mercancía',
+      icon: 'pi pi-lock',
+      etapa: 'pendiente',
+      categoria: 'entrada',
+      description: 'No tienes permiso para ver las entradas de esta orden.',
+    });
+  } else if (entradas.length > 0) {
     entradas.forEach((entrada) => {
       events.push({
         status: 'Entrada de Mercancía',
@@ -161,7 +173,15 @@ function construirTimeline(
     });
   }
 
-  if (recibos.length > 0) {
+  if (!puedeVerRecibos) {
+    events.push({
+      status: 'Recibos de Caja',
+      icon: 'pi pi-lock',
+      etapa: 'pendiente',
+      categoria: 'recibo',
+      description: 'No tienes permiso para ver los recibos de esta orden.',
+    });
+  } else if (recibos.length > 0) {
     recibos.forEach((recibo) => {
       events.push({
         status: `Recibo ${recibo.numeroRecibo}`,
@@ -203,9 +223,13 @@ export function OrdenDetallePage() {
   const navigate = useNavigate();
   const ordenId = id ? Number(id) : undefined;
 
+  const usuario = useAuthStore((state) => state.usuario);
+  const puedeVerRecibos = hasPermiso(usuario?.permisos, 'CHIPIS:RECIBOS_LEER');
+  const puedeVerEntradas = hasPermiso(usuario?.permisos, 'CHIPIS:ENTRADAS_LEER');
+
   const { data: orden, isLoading, isError } = useOrdenDetalleQuery(ordenId);
-  const { data: recibos = [] } = useRecibosDeOrdenQuery(orden?.numeroOrden);
-  const { data: entradas = [] } = useEntradasDeOrdenQuery(orden?.id);
+  const { data: recibos = [] } = useRecibosDeOrdenQuery(orden?.numeroOrden, puedeVerRecibos);
+  const { data: entradas = [] } = useEntradasDeOrdenQuery(orden?.id, puedeVerEntradas);
   const anularMutation = useAnularOrden();
   const [entradaDialogVisible, setEntradaDialogVisible] = useState(false);
 
@@ -219,7 +243,14 @@ export function OrdenDetallePage() {
 
   const porcentajeRecibido = calcularPorcentajeRecibido(orden);
   const porcentajePagado = calcularPorcentajePagado(orden);
-  const timelineEvents = construirTimeline(orden, entradas, recibos, porcentajePagado);
+  const timelineEvents = construirTimeline(
+    orden,
+    entradas,
+    recibos,
+    porcentajePagado,
+    puedeVerEntradas,
+    puedeVerRecibos,
+  );
 
   const confirmAnular = () => {
     confirmDialog({
@@ -413,7 +444,9 @@ export function OrdenDetallePage() {
               </div>
             </div>
 
-            {recibos.length === 0 ? (
+            {!puedeVerRecibos ? (
+              <p className="orden-pagos-vacio">No tienes permiso para ver los recibos de esta orden.</p>
+            ) : recibos.length === 0 ? (
               <p className="orden-pagos-vacio">Aún no se han registrado recibos para esta orden.</p>
             ) : (
               <ul className="orden-pagos-lista">

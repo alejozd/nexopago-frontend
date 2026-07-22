@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Card } from 'primereact/card';
 import { Dropdown } from 'primereact/dropdown';
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
 import { Checkbox } from 'primereact/checkbox';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
@@ -10,11 +8,14 @@ import { ProgressSpinner } from 'primereact/progressspinner';
 import { usePerfilesQuery } from '../../hooks/permisos/usePerfilesQuery';
 import { useMatrizQuery } from '../../hooks/permisos/useMatrizQuery';
 import { useAsignarPermisos } from '../../hooks/permisos/useAsignarPermisos';
-import type { PermisoMatrizItem } from '../../types/permiso.types';
+import { PerfilFormDialog } from './PerfilFormDialog';
+import type { Perfil, PermisoMatrizItem } from '../../types/permiso.types';
 import '../../assets/styles/permisos.css';
 
-interface ModuloRow {
-  modulo: string;
+function formatAccion(item: PermisoMatrizItem): string {
+  const descripcion = (item as PermisoMatrizItem & { descripcion?: string }).descripcion;
+  if (descripcion) return descripcion;
+  return item.accion.replace(/_/g, ' ').toLowerCase();
 }
 
 export function PermisosPage() {
@@ -24,6 +25,8 @@ export function PermisosPage() {
   const asignarMutation = useAsignarPermisos();
 
   const [seleccionados, setSeleccionados] = useState<Set<number>>(new Set());
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [editingPerfil, setEditingPerfil] = useState<Perfil | null>(null);
 
   useEffect(() => {
     if (matriz) {
@@ -32,21 +35,16 @@ export function PermisosPage() {
   }, [matriz]);
 
   const perfiles = perfilesData?.data ?? [];
+  const perfilSeleccionado = perfiles.find((p) => p.id === perfilId) ?? null;
 
-  const modulos = useMemo(() => {
-    const nombres = new Set((matriz ?? []).map((item) => item.moduloNombre));
-    return Array.from(nombres).sort();
-  }, [matriz]);
-
-  const acciones = useMemo(() => {
-    const nombres = new Set((matriz ?? []).map((item) => item.accion));
-    return Array.from(nombres).sort();
-  }, [matriz]);
-
-  const lookup = useMemo(() => {
-    const map = new Map<string, PermisoMatrizItem>();
-    (matriz ?? []).forEach((item) => map.set(`${item.moduloNombre}|${item.accion}`, item));
-    return map;
+  const modulosAgrupados = useMemo(() => {
+    const grupos = new Map<string, PermisoMatrizItem[]>();
+    (matriz ?? []).forEach((item) => {
+      const lista = grupos.get(item.moduloNombre) ?? [];
+      lista.push(item);
+      grupos.set(item.moduloNombre, lista);
+    });
+    return Array.from(grupos.entries()).sort(([a], [b]) => a.localeCompare(b));
   }, [matriz]);
 
   const toggle = (permisoId: number) => {
@@ -66,30 +64,50 @@ export function PermisosPage() {
     asignarMutation.mutate({ perfilId, permisoIds: Array.from(seleccionados) });
   };
 
-  const moduloRows: ModuloRow[] = modulos.map((modulo) => ({ modulo }));
+  const openCreateDialog = () => {
+    setEditingPerfil(null);
+    setDialogVisible(true);
+  };
+
+  const openEditDialog = () => {
+    if (!perfilSeleccionado) return;
+    setEditingPerfil(perfilSeleccionado);
+    setDialogVisible(true);
+  };
 
   return (
     <div className="permisos-page">
       <Card title="Permisos">
-        <div className="permisos-selector">
-          <label htmlFor="perfil" style={{ display: 'block', fontWeight: 600, fontSize: '0.82rem', marginBottom: '0.35rem' }}>
-            Perfil
-          </label>
-          <Dropdown
-            id="perfil"
-            value={perfilId}
-            options={perfiles}
-            optionLabel="nombre"
-            optionValue="id"
-            placeholder="Selecciona un perfil"
-            style={{ width: '100%' }}
-            onChange={(e) => setPerfilId(e.value)}
-          />
+        <div className="permisos-selector-row">
+          <div className="permisos-selector">
+            <label
+              htmlFor="perfil"
+              style={{ display: 'block', fontWeight: 600, fontSize: '0.82rem', marginBottom: '0.35rem' }}
+            >
+              Perfil
+            </label>
+            <Dropdown
+              id="perfil"
+              value={perfilId}
+              options={perfiles}
+              optionLabel="nombre"
+              optionValue="id"
+              placeholder="Selecciona un perfil"
+              style={{ width: '100%' }}
+              onChange={(e) => setPerfilId(e.value)}
+            />
+          </div>
+          <div className="permisos-selector-actions">
+            <Button label="Nuevo Perfil" icon="pi pi-plus" outlined onClick={openCreateDialog} />
+            {perfilSeleccionado && (
+              <Button label="Editar Perfil" icon="pi pi-pencil" text onClick={openEditDialog} />
+            )}
+          </div>
         </div>
       </Card>
 
       {perfilId !== null && (
-        <Card title="Matriz de Permisos">
+        <Card title="Permisos del Perfil">
           {isLoadingMatriz ? (
             <ProgressSpinner />
           ) : (
@@ -107,32 +125,30 @@ export function PermisosPage() {
                   onClick={handleGuardar}
                 />
               </div>
-              <DataTable value={moduloRows} dataKey="modulo" stripedRows size="small">
-                <Column field="modulo" header="Módulo" />
-                {acciones.map((accion) => (
-                  <Column
-                    key={accion}
-                    header={accion}
-                    alignHeader="center"
-                    body={(row: ModuloRow) => {
-                      const item = lookup.get(`${row.modulo}|${accion}`);
-                      if (!item) return null;
-                      return (
-                        <div className="permisos-matriz-check">
+              <div className="permisos-modulos">
+                {modulosAgrupados.map(([moduloNombre, items]) => (
+                  <div key={moduloNombre} className="permisos-modulo-card">
+                    <h3 className="permisos-modulo-titulo">{moduloNombre}</h3>
+                    <div className="permisos-modulo-items">
+                      {items.map((item) => (
+                        <label key={item.permisoId} className="permisos-item">
                           <Checkbox
                             checked={seleccionados.has(item.permisoId)}
                             onChange={() => toggle(item.permisoId)}
                           />
-                        </div>
-                      );
-                    }}
-                  />
+                          <span>{formatAccion(item)}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 ))}
-              </DataTable>
+              </div>
             </>
           )}
         </Card>
       )}
+
+      <PerfilFormDialog visible={dialogVisible} perfil={editingPerfil} onHide={() => setDialogVisible(false)} />
     </div>
   );
 }
