@@ -145,7 +145,14 @@ export function PermisosPage() {
                     <h3 className="permisos-modulo-titulo">{moduloNombre}</h3>
                     <div className="permisos-modulo-items">
                       {items.map((item) => {
-                        const bloqueado = bloqueadosPorDependencia.has(item.permisoId);
+                        // Bloqueado SOLO si ya esta marcado (no se puede desmarcar
+                        // mientras algo dependa de el). Si esta desmarcado, debe
+                        // poder marcarse aunque algo lo requiera -- si no, un perfil
+                        // armado antes de esta regla (ej. con ORDENES_CREAR ya
+                        // marcado pero PROVEEDORES_LEER sin marcar) mostraria un
+                        // checkbox desmarcado Y deshabilitado, sin forma de corregirlo
+                        // manualmente desde la UI.
+                        const bloqueado = seleccionados.has(item.permisoId) && bloqueadosPorDependencia.has(item.permisoId);
                         return (
                           <label key={item.permisoId} className="permisos-item">
                             <Checkbox
