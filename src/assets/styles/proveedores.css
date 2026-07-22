@@ -63,3 +63,31 @@
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
+
+.proveedores-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.proveedores-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--np-text-title);
+}
+
+.proveedores-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.proveedores-search {
+  width: 18rem;
+  max-width: 100%;
+}

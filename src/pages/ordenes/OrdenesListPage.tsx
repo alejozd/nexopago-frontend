@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataTable, type DataTablePageEvent, type DataTableSortEvent } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
+import { InputText } from 'primereact/inputtext';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { useOrdenesQuery } from '../../hooks/ordenes/useOrdenesQuery';
 import { useOrdenesResumenQuery } from '../../hooks/ordenes/useOrdenesResumenQuery';
@@ -15,17 +18,27 @@ import { EntradaFormDialog } from './EntradaFormDialog';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import type { OrdenListItem } from '../../types/orden.types';
 import type { PagedParams } from '../../types/common.types';
+import '../../assets/styles/ordenes.css';
 
 const DEFAULT_PARAMS: PagedParams = { page: 1, rows: 20 };
+const SEARCH_DEBOUNCE_MS = 400;
 const ESTADOS_CON_ENTRADA_PENDIENTE = ['BORRADOR', 'PENDIENTE', 'PARCIALMENTE_RECIBIDA'];
 
 export function OrdenesListPage() {
   const navigate = useNavigate();
   const [params, setParams] = useState<PagedParams>(DEFAULT_PARAMS);
+  const [searchInput, setSearchInput] = useState('');
   const [entradaOrdenId, setEntradaOrdenId] = useState<number | null>(null);
   const { data, isLoading } = useOrdenesQuery(params);
   const { data: resumen } = useOrdenesResumenQuery();
   const anularMutation = useAnularOrden();
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setParams((prev) => ({ ...prev, page: 1, search: searchInput || undefined }));
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
 
   const onPage = (event: DataTablePageEvent) => {
     setParams((prev) => ({ ...prev, page: (event.page ?? 0) + 1, rows: event.rows }));
@@ -59,9 +72,21 @@ export function OrdenesListPage() {
         <KpiCard icon="pi pi-ban" label="Anuladas" value={String(resumen?.anuladas ?? 0)} accent="danger" size="compact" />
       </div>
 
-      <Card title="Órdenes de Compra">
-      <div className="page-header-actions">
-        <Button label="Nueva Orden de Compra" icon="pi pi-plus" onClick={() => navigate('/ordenes/nueva')} />
+      <Card>
+      <div className="ordenes-header">
+        <h2 className="ordenes-title">Órdenes de Compra</h2>
+        <div className="ordenes-header-actions">
+          <IconField iconPosition="left" className="ordenes-search">
+            <InputIcon className="pi pi-search" />
+            <InputText
+              placeholder="Buscar por orden, proveedor, proyecto o solicitud..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              style={{ width: '100%' }}
+            />
+          </IconField>
+          <Button label="Nueva Orden de Compra" icon="pi pi-plus" onClick={() => navigate('/ordenes/nueva')} />
+        </div>
       </div>
 
       <DataTable

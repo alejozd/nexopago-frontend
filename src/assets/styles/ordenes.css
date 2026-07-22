@@ -4,6 +4,36 @@
   gap: var(--np-space-lg);
 }
 
+/* Listado de Ordenes de Compra (OrdenesListPage): titulo a la izquierda,
+   buscador + boton "Nueva Orden" a la derecha, una sola fila. */
+.ordenes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.ordenes-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--np-text-title);
+}
+
+.ordenes-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.ordenes-search {
+  width: 20rem;
+  max-width: 100%;
+}
+
 /* Dialogo "Registrar Entrada de Mercancia" (EntradaFormDialog). */
 
 /* Fila de encabezado: el campo de N. Entrada ERP no necesita todo el ancho
@@ -273,12 +303,21 @@
    (align-items:stretch). Como el pill de Estado a veces envuelve a 2
    lineas, esa altura mayor se contagiaba a Proveedor/Fecha/Valor Total,
    dejandoles un espacio vacio abajo para igualar. Con align-items:start
-   cada celda mide solo lo que necesita su propio contenido. */
+   cada celda mide solo lo que necesita su propio contenido.
+
+   Franja gris debajo del divisor: separa visualmente los datos (Proveedor/
+   Fecha/Estado/Valor Total) del bloque titulo+acciones de arriba. Se extiende
+   borde a borde de la Card con margenes negativos que cancelan el padding de
+   .p-card-body (var(--np-space-lg)), y el padding propio lo repone por dentro. */
 .orden-header-grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1.1fr 1fr;
   gap: var(--np-space-md);
   align-items: start;
+  background: var(--np-paper);
+  margin: 0 calc(var(--np-space-lg) * -1) calc(var(--np-space-lg) * -1);
+  padding: var(--np-space-md) var(--np-space-lg) var(--np-space-lg);
+  border-radius: 0 0 var(--np-radius-card) var(--np-radius-card);
 }
 
 @media (max-width: 900px) {
@@ -331,14 +370,16 @@
 
 /* Titulo + subtitulo a la izquierda, acciones (Editar/Registrar
    Entrada/Anular) a la derecha, ambos en la misma fila -- antes las
-   acciones vivian en su propio renglon debajo de los campos. */
+   acciones vivian en su propio renglon debajo de los campos.
+   align-items:center (no flex-start) para que los botones queden
+   centrados respecto al bloque titulo+subtitulo, a la altura del
+   encabezado, en vez de pegados arriba. */
 .orden-header-top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 1.25rem;
   padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--np-border);
 }
@@ -513,7 +554,8 @@
 }
 
 .orden-detalle-total-label {
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
   color: var(--np-text-body);
 }
 

@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DataTable, type DataTablePageEvent, type DataTableSortEvent } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
+import { InputText } from 'primereact/inputtext';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { useUsuariosQuery } from '../../hooks/usuarios/useUsuariosQuery';
 import { useUsuariosResumenQuery } from '../../hooks/usuarios/useUsuariosResumenQuery';
@@ -14,16 +17,26 @@ import { UsuarioFormDialog } from './UsuarioFormDialog';
 import { formatDate } from '../../utils/formatters';
 import type { UsuarioListItem } from '../../types/usuario.types';
 import type { PagedParams } from '../../types/common.types';
+import '../../assets/styles/usuarios.css';
 
 const DEFAULT_PARAMS: PagedParams = { page: 1, rows: 20 };
+const SEARCH_DEBOUNCE_MS = 400;
 
 export function UsuariosPage() {
   const [params, setParams] = useState<PagedParams>(DEFAULT_PARAMS);
+  const [searchInput, setSearchInput] = useState('');
   const [dialogVisible, setDialogVisible] = useState(false);
   const [editingUsuario, setEditingUsuario] = useState<UsuarioListItem | null>(null);
   const { data, isLoading } = useUsuariosQuery(params);
   const { data: resumen } = useUsuariosResumenQuery();
   const cambiarEstadoMutation = useCambiarEstadoUsuario();
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setParams((prev) => ({ ...prev, page: 1, search: searchInput || undefined }));
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
 
   const openCreateDialog = () => {
     setEditingUsuario(null);
@@ -85,9 +98,21 @@ export function UsuariosPage() {
         />
       </div>
 
-      <Card title="Usuarios">
-        <div className="page-header-actions">
-          <Button label="Nuevo Usuario" icon="pi pi-plus" onClick={openCreateDialog} />
+      <Card>
+        <div className="usuarios-header">
+          <h2 className="usuarios-title">Usuarios</h2>
+          <div className="usuarios-header-actions">
+            <IconField iconPosition="left" className="usuarios-search">
+              <InputIcon className="pi pi-search" />
+              <InputText
+                placeholder="Buscar por usuario, nombre, rol o estado..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                style={{ width: '100%' }}
+              />
+            </IconField>
+            <Button label="Nuevo Usuario" icon="pi pi-plus" onClick={openCreateDialog} />
+          </div>
         </div>
 
         <DataTable

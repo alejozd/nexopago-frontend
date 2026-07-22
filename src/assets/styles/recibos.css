@@ -114,3 +114,33 @@
   font-size: 0.88rem;
   white-space: pre-wrap;
 }
+
+/* Listado de Recibos de Caja (RecibosListPage): titulo a la izquierda,
+   buscador + boton "Nuevo Recibo" a la derecha, una sola fila. */
+.recibos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.recibos-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--np-text-title);
+}
+
+.recibos-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.recibos-search {
+  width: 20rem;
+  max-width: 100%;
+}

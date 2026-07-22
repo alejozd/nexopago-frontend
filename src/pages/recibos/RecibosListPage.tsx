@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DataTable, type DataTablePageEvent, type DataTableSortEvent } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
+import { InputText } from 'primereact/inputtext';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { useRecibosQuery } from '../../hooks/recibos/useRecibosQuery';
 import { useRecibosResumenQuery } from '../../hooks/recibos/useRecibosResumenQuery';
@@ -16,16 +19,26 @@ import { ReciboViewDialog } from './ReciboViewDialog';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import type { ReciboCaja } from '../../types/recibo.types';
 import type { PagedParams } from '../../types/common.types';
+import '../../assets/styles/recibos.css';
 
 const DEFAULT_PARAMS: PagedParams = { page: 1, rows: 20 };
+const SEARCH_DEBOUNCE_MS = 400;
 
 export function RecibosListPage() {
   const [params, setParams] = useState<PagedParams>(DEFAULT_PARAMS);
+  const [searchInput, setSearchInput] = useState('');
   const [dialogVisible, setDialogVisible] = useState(false);
   const [reciboToView, setReciboToView] = useState<ReciboCaja | null>(null);
   const { data, isLoading } = useRecibosQuery(params);
   const { data: resumen } = useRecibosResumenQuery();
   const anularMutation = useAnularRecibo();
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setParams((prev) => ({ ...prev, page: 1, search: searchInput || undefined }));
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
 
   const onPage = (event: DataTablePageEvent) => {
     setParams((prev) => ({ ...prev, page: (event.page ?? 0) + 1, rows: event.rows }));
@@ -60,9 +73,21 @@ export function RecibosListPage() {
         <KpiCard icon="pi pi-wallet" label="Monto Total" value={formatCurrency(resumen?.montoTotal ?? 0)} accent="warning" size="compact" />
       </div>
 
-      <Card title="Recibos de Caja">
-      <div className="page-header-actions">
-        <Button label="Nuevo Recibo" icon="pi pi-plus" onClick={() => setDialogVisible(true)} />
+      <Card>
+      <div className="recibos-header">
+        <h2 className="recibos-title">Recibos de Caja</h2>
+        <div className="recibos-header-actions">
+          <IconField iconPosition="left" className="recibos-search">
+            <InputIcon className="pi pi-search" />
+            <InputText
+              placeholder="Buscar por N° de recibo, orden o proveedor..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              style={{ width: '100%' }}
+            />
+          </IconField>
+          <Button label="Nuevo Recibo" icon="pi pi-plus" onClick={() => setDialogVisible(true)} />
+        </div>
       </div>
 
       <DataTable

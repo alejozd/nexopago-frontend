@@ -11,3 +11,24 @@
 .entradas-row-clickable:hover {
   background-color: var(--np-content-bg) !important;
 }
+
+.entradas-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.entradas-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--np-text-title);
+}
+
+.entradas-search {
+  width: 20rem;
+  max-width: 100%;
+}

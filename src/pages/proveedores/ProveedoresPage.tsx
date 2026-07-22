@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DataTable, type DataTablePageEvent, type DataTableSortEvent } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
+import { InputText } from 'primereact/inputtext';
 import { confirmDialog } from 'primereact/confirmdialog';
 import { useProveedoresQuery } from '../../hooks/proveedores/useProveedoresQuery';
 import { useProveedoresResumenQuery } from '../../hooks/proveedores/useProveedoresResumenQuery';
@@ -14,11 +17,14 @@ import { KpiCard } from '../../components/common/KpiCard';
 import { ProveedorFormDialog } from './ProveedorFormDialog';
 import type { Proveedor } from '../../types/proveedor.types';
 import type { PagedParams } from '../../types/common.types';
+import '../../assets/styles/proveedores.css';
 
 const DEFAULT_PARAMS: PagedParams = { page: 1, rows: 20 };
+const SEARCH_DEBOUNCE_MS = 400;
 
 export function ProveedoresPage() {
   const [params, setParams] = useState<PagedParams>(DEFAULT_PARAMS);
+  const [searchInput, setSearchInput] = useState('');
   const [dialogVisible, setDialogVisible] = useState(false);
   const [editingProveedor, setEditingProveedor] = useState<Proveedor | null>(null);
 
@@ -26,6 +32,13 @@ export function ProveedoresPage() {
   const { data: resumen } = useProveedoresResumenQuery();
   const cambiarEstadoMutation = useCambiarEstadoProveedor();
   const deleteMutation = useDeleteProveedor();
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setParams((prev) => ({ ...prev, page: 1, search: searchInput || undefined }));
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
 
   const onPage = (event: DataTablePageEvent) => {
     setParams((prev) => ({ ...prev, page: (event.page ?? 0) + 1, rows: event.rows }));
@@ -83,9 +96,21 @@ export function ProveedoresPage() {
         />
       </div>
 
-      <Card title="Proveedores">
-      <div className="page-header-actions">
-        <Button label="Nuevo Proveedor" icon="pi pi-plus" onClick={openCreateDialog} />
+      <Card>
+      <div className="proveedores-header">
+        <h2 className="proveedores-title">Proveedores</h2>
+        <div className="proveedores-header-actions">
+          <IconField iconPosition="left" className="proveedores-search">
+            <InputIcon className="pi pi-search" />
+            <InputText
+              placeholder="Buscar por NIT, nombre o correo..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              style={{ width: '100%' }}
+            />
+          </IconField>
+          <Button label="Nuevo Proveedor" icon="pi pi-plus" onClick={openCreateDialog} />
+        </div>
       </div>
 
       <DataTable

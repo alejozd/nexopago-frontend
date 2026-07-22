@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataTable, type DataTablePageEvent, type DataTableRowClickEvent, type DataTableSortEvent } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
+import { IconField } from 'primereact/iconfield';
+import { InputIcon } from 'primereact/inputicon';
+import { InputText } from 'primereact/inputtext';
 import { useEntradasQuery } from '../../hooks/entradas/useEntradasQuery';
 import { useEntradasResumenQuery } from '../../hooks/entradas/useEntradasResumenQuery';
 import { KpiCard } from '../../components/common/KpiCard';
@@ -12,12 +15,21 @@ import type { PagedParams } from '../../types/common.types';
 import '../../assets/styles/entradas.css';
 
 const DEFAULT_PARAMS: PagedParams = { page: 1, rows: 20, sortField: 'fechaEntrada', sortOrder: -1 };
+const SEARCH_DEBOUNCE_MS = 400;
 
 export function EntradasListPage() {
   const navigate = useNavigate();
   const [params, setParams] = useState<PagedParams>(DEFAULT_PARAMS);
+  const [searchInput, setSearchInput] = useState('');
   const { data, isLoading } = useEntradasQuery(params);
   const { data: resumen } = useEntradasResumenQuery();
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setParams((prev) => ({ ...prev, page: 1, search: searchInput || undefined }));
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
 
   const onPage = (event: DataTablePageEvent) => {
     setParams((prev) => ({ ...prev, page: (event.page ?? 0) + 1, rows: event.rows }));
@@ -50,7 +62,20 @@ export function EntradasListPage() {
         />
       </div>
 
-      <Card title="Entradas de Mercancía">
+      <Card>
+      <div className="entradas-header">
+        <h2 className="entradas-title">Entradas de Mercancía</h2>
+        <IconField iconPosition="left" className="entradas-search">
+          <InputIcon className="pi pi-search" />
+          <InputText
+            placeholder="Buscar por N° de entrada, orden o proveedor..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            style={{ width: '100%' }}
+          />
+        </IconField>
+      </div>
+
       <p className="entradas-subtitle">
         Historial de entradas registradas desde Órdenes de Compra, para auditoría. Para registrar una nueva entrada,
         ve al detalle de la orden correspondiente.
