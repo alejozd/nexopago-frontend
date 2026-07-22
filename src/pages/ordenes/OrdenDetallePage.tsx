@@ -12,13 +12,14 @@ import { confirmDialog } from 'primereact/confirmdialog';
 import { useOrdenDetalleQuery } from '../../hooks/ordenes/useOrdenDetalleQuery';
 import { useRecibosDeOrdenQuery } from '../../hooks/ordenes/useRecibosDeOrdenQuery';
 import { useEntradasDeOrdenQuery } from '../../hooks/ordenes/useEntradasDeOrdenQuery';
+import { useEstadoDocumentosOrdenQuery } from '../../hooks/ordenes/useEstadoDocumentosOrdenQuery';
 import { useAnularOrden } from '../../hooks/ordenes/useAnularOrden';
 import { useAuthStore } from '../../store/authStore';
 import { StatusTag } from '../../components/common/StatusTag';
 import { EntradaFormDialog } from './EntradaFormDialog';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { hasPermiso } from '../../utils/permisos';
-import type { OrdenDetalle, OrdenEstado, OrdenLinea } from '../../types/orden.types';
+import type { OrdenDetalle, OrdenEstado, OrdenEstadoDocumentos, OrdenLinea } from '../../types/orden.types';
 import type { ReciboCaja } from '../../types/recibo.types';
 import type { EntradaMercancia } from '../../types/entrada.types';
 import '../../assets/styles/ordenes.css';
@@ -129,6 +130,7 @@ function construirTimeline(
   porcentajePagado: number,
   puedeVerEntradas: boolean,
   puedeVerRecibos: boolean,
+  estadoDocumentos: OrdenEstadoDocumentos | undefined,
 ): TimelineEvent[] {
   const events: TimelineEvent[] = [
     {
@@ -143,13 +145,27 @@ function construirTimeline(
   ];
 
   if (!puedeVerEntradas) {
-    events.push({
-      status: 'Entrada de Mercancía',
-      icon: 'pi pi-lock',
-      etapa: 'pendiente',
-      categoria: 'entrada',
-      description: 'No tienes permiso para ver las entradas de esta orden.',
-    });
+    if (estadoDocumentos?.tieneEntradas) {
+      events.push({
+        status: 'Entrada de Mercancía',
+        date: estadoDocumentos.fechaUltimaEntrada ? formatDate(estadoDocumentos.fechaUltimaEntrada) : undefined,
+        icon: 'pi pi-truck',
+        etapa: 'done',
+        categoria: 'entrada',
+        description:
+          estadoDocumentos.cantidadEntradas > 1
+            ? `${estadoDocumentos.cantidadEntradas} entradas registradas`
+            : 'Entrada de mercancía registrada.',
+      });
+    } else {
+      events.push({
+        status: 'Entrada de Mercancía',
+        icon: 'pi pi-clock',
+        etapa: 'pendiente',
+        categoria: 'entrada',
+        description: 'Aún no se ha registrado ninguna entrada.',
+      });
+    }
   } else if (entradas.length > 0) {
     entradas.forEach((entrada) => {
       events.push({
@@ -174,13 +190,36 @@ function construirTimeline(
   }
 
   if (!puedeVerRecibos) {
-    events.push({
-      status: 'Recibos de Caja',
-      icon: 'pi pi-lock',
-      etapa: 'pendiente',
-      categoria: 'recibo',
-      description: 'No tienes permiso para ver los recibos de esta orden.',
-    });
+    if (estadoDocumentos?.tieneRecibos) {
+      events.push({
+        status: 'Recibos de Caja',
+        date: estadoDocumentos.fechaUltimoRecibo ? formatDate(estadoDocumentos.fechaUltimoRecibo) : undefined,
+        icon: 'pi pi-money-bill',
+        etapa: 'done',
+        categoria: 'recibo',
+        description:
+          estadoDocumentos.cantidadRecibos > 1
+            ? `${estadoDocumentos.cantidadRecibos} recibos registrados — ${formatCurrency(orden.montoPagado)} pagado`
+            : `${formatCurrency(orden.montoPagado)} pagado`,
+      });
+    } else if (porcentajePagado > 0) {
+      events.push({
+        status: 'Recibos de Caja',
+        icon: 'pi pi-money-bill',
+        etapa: 'active',
+        categoria: 'recibo',
+        percent: porcentajePagado,
+        description: 'Pagos parciales aplicados, aún sin recibo registrado.',
+      });
+    } else {
+      events.push({
+        status: 'Recibos de Caja',
+        icon: 'pi pi-money-bill',
+        etapa: 'pendiente',
+        categoria: 'recibo',
+        description: 'Aún no se han registrado recibos para esta orden.',
+      });
+    }
   } else if (recibos.length > 0) {
     recibos.forEach((recibo) => {
       events.push({
@@ -226,10 +265,12 @@ export function OrdenDetallePage() {
   const usuario = useAuthStore((state) => state.usuario);
   const puedeVerRecibos = hasPermiso(usuario?.permisos, 'CHIPIS:RECIBOS_LEER');
   const puedeVerEntradas = hasPermiso(usuario?.permisos, 'CHIPIS:ENTRADAS_LEER');
+  const necesitaEstadoDocumentos = !puedeVerEntradas || !puedeVerRecibos;
 
   const { data: orden, isLoading, isError } = useOrdenDetalleQuery(ordenId);
   const { data: recibos = [] } = useRecibosDeOrdenQuery(orden?.numeroOrden, puedeVerRecibos);
   const { data: entradas = [] } = useEntradasDeOrdenQuery(orden?.id, puedeVerEntradas);
+  const { data: estadoDocumentos } = useEstadoDocumentosOrdenQuery(orden?.id, necesitaEstadoDocumentos);
   const anularMutation = useAnularOrden();
   const [entradaDialogVisible, setEntradaDialogVisible] = useState(false);
 
@@ -250,6 +291,7 @@ export function OrdenDetallePage() {
     porcentajePagado,
     puedeVerEntradas,
     puedeVerRecibos,
+    estadoDocumentos,
   );
 
   const confirmAnular = () => {
@@ -445,7 +487,11 @@ export function OrdenDetallePage() {
             </div>
 
             {!puedeVerRecibos ? (
-              <p className="orden-pagos-vacio">No tienes permiso para ver los recibos de esta orden.</p>
+              <p className="orden-pagos-vacio">
+                {estadoDocumentos?.tieneRecibos
+                  ? `Se ${estadoDocumentos.cantidadRecibos > 1 ? 'han registrado' : 'ha registrado'} ${estadoDocumentos.cantidadRecibos} recibo${estadoDocumentos.cantidadRecibos > 1 ? 's' : ''} (no tienes permiso para ver el detalle).`
+                  : 'No tienes permiso para ver los recibos de esta orden.'}
+              </p>
             ) : recibos.length === 0 ? (
               <p className="orden-pagos-vacio">Aún no se han registrado recibos para esta orden.</p>
             ) : (

@@ -53,6 +53,15 @@ export interface OrdenDetalle {
   detalles: OrdenLinea[];
 }
 
+export interface OrdenEstadoDocumentos {
+  tieneEntradas: boolean;
+  cantidadEntradas: number;
+  fechaUltimaEntrada: string | null;
+  tieneRecibos: boolean;
+  cantidadRecibos: number;
+  fechaUltimoRecibo: string | null;
+}
+
 export interface OrdenLineaCreateDTO {
   productoId: number;
   cantidad: number;

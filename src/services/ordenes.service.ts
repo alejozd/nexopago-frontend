@@ -1,6 +1,12 @@
 import { axiosClient } from '../api/axiosClient';
 import type { PagedParams, PagedResult } from '../types/common.types';
-import type { OrdenCreateDTO, OrdenDetalle, OrdenesResumen, OrdenListItem } from '../types/orden.types';
+import type {
+  OrdenCreateDTO,
+  OrdenDetalle,
+  OrdenEstadoDocumentos,
+  OrdenesResumen,
+  OrdenListItem,
+} from '../types/orden.types';
 
 export async function getOrdenes(params: PagedParams): Promise<PagedResult<OrdenListItem>> {
   const response = await axiosClient.get<PagedResult<OrdenListItem>>('/ordenes', { params });
@@ -14,6 +20,11 @@ export async function getOrdenesResumen(): Promise<OrdenesResumen> {
 
 export async function getOrdenById(id: number): Promise<OrdenDetalle> {
   const response = await axiosClient.get<OrdenDetalle>(`/ordenes/${id}`);
+  return response.data;
+}
+
+export async function getEstadoDocumentosOrden(id: number): Promise<OrdenEstadoDocumentos> {
+  const response = await axiosClient.get<OrdenEstadoDocumentos>(`/ordenes/${id}/estado-documentos`);
   return response.data;
 }
 
