@@ -25,8 +25,11 @@ export function AppRouter() {
         <Route element={<AppLayout />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/reportes/cartera" element={<ReportesCarteraPage />} />
           <Route path="/sin-acceso" element={<AccesoDenegadoPage />} />
+
+          <Route element={<PermisoRoute requiredPermiso="CHIPIS:REPORTES_CARTERA_LEER" />}>
+            <Route path="/reportes/cartera" element={<ReportesCarteraPage />} />
+          </Route>
 
           <Route element={<PermisoRoute requiredPermiso="CHIPIS:PROVEEDORES_LEER" />}>
             <Route path="/proveedores" element={<ProveedoresPage />} />

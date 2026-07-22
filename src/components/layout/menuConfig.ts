@@ -15,6 +15,6 @@ export const menuConfig: MenuItemConfig[] = [
   { label: 'Recibos de Caja', icon: 'pi pi-wallet', path: '/recibos', requiredPermiso: 'CHIPIS:RECIBOS_LEER' },
   { label: 'Usuarios', icon: 'pi pi-users', path: '/usuarios', requiredPermiso: 'ADMINISTRACION:USUARIOS_LEER' },
   { label: 'Permisos', icon: 'pi pi-lock', path: '/permisos', requiredPermiso: 'ADMINISTRACION:PERMISOS_LEER' },
-  { label: 'Reportes de Cartera', icon: 'pi pi-chart-bar', path: '/reportes/cartera' },
+  { label: 'Reportes de Cartera', icon: 'pi pi-chart-bar', path: '/reportes/cartera', requiredPermiso: 'CHIPIS:REPORTES_CARTERA_LEER' },
   { label: 'Configuración', icon: 'pi pi-cog', path: '/configuracion/empresa', requiredPermiso: 'CONFIGURACION:CAMBIAR_EMPRESA' },
 ];
