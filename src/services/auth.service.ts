@@ -21,3 +21,9 @@ export async function getMe(): Promise<UsuarioMe> {
   const response = await axiosClient.get<UsuarioMe>('/auth/me');
   return response.data;
 }
+
+// El interceptor de request ya adjunta el Bearer token actual; no requiere body.
+export async function refreshToken(): Promise<LoginResult> {
+  const response = await axiosClient.post<LoginResult>('/auth/refresh');
+  return response.data;
+}

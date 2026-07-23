@@ -1,0 +1,17 @@
+.session-expiry-countdown {
+  margin: 0.25rem 0 1rem;
+  font-size: 0.95rem;
+  color: var(--np-text-body);
+}
+
+.session-expiry-countdown strong {
+  color: var(--np-text-title);
+  font-variant-numeric: tabular-nums;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
